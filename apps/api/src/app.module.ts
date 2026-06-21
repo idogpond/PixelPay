@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { BullModule } from '@nestjs/bullmq';
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
@@ -8,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { WalletModule } from './wallet/wallet.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -15,10 +17,17 @@ import { WalletModule } from './wallet/wallet.module';
       isGlobal: true,
       load: [appConfig, databaseConfig, jwtConfig, redisConfig],
     }),
+    BullModule.forRootAsync({
+      useFactory: (config: ConfigService) => ({
+        connection: { url: config.get<string>('redis.url') },
+      }),
+      inject: [ConfigService],
+    }),
     PrismaModule,
     AuthModule,
     UsersModule,
     WalletModule,
+    PaymentsModule,
   ],
 })
 export class AppModule {}
