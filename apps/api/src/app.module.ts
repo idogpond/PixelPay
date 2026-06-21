@@ -5,6 +5,7 @@ import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import redisConfig from './config/redis.config';
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PrismaModule } from './prisma/prisma.module';
       load: [appConfig, databaseConfig, jwtConfig, redisConfig],
     }),
     PrismaModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
