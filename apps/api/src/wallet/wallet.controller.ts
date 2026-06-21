@@ -7,7 +7,7 @@ import { UserRole } from '@prisma/client';
 import { WalletService } from './wallet.service';
 import { DepositDto } from './dto/deposit.dto';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('wallet')
 export class WalletController {
   constructor(private readonly wallet: WalletService) {}
@@ -27,7 +27,6 @@ export class WalletController {
   }
 
   @Post('deposit')
-  @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   adminDeposit(@Body() dto: DepositDto) {
     return this.wallet.adminDeposit(dto.userId, dto.amount, dto.description);

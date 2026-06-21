@@ -60,6 +60,7 @@ export class WalletService {
     type: WalletTransactionType,
     description: string,
     referenceId?: string,
+    referenceType?: string,
   ) {
     const wallet = await tx.wallet.findUniqueOrThrow({
       where: { id: walletId },
@@ -83,6 +84,7 @@ export class WalletService {
           balanceBefore,
           balanceAfter,
           referenceId,
+          referenceType: referenceType ?? null,
           metadata: { description },
         },
       }),
@@ -102,6 +104,7 @@ export class WalletService {
     type: WalletTransactionType,
     description: string,
     referenceId?: string,
+    referenceType?: string,
   ) {
     const wallet = await tx.wallet.findUniqueOrThrow({
       where: { id: walletId },
@@ -130,6 +133,7 @@ export class WalletService {
           balanceBefore,
           balanceAfter,
           referenceId,
+          referenceType: referenceType ?? null,
           metadata: { description },
         },
       }),
@@ -148,6 +152,7 @@ export class WalletService {
     amount: Decimal | number | string,
     description: string,
     referenceId?: string,
+    referenceType?: string,
   ) {
     const wallet = await tx.wallet.findUniqueOrThrow({
       where: { id: walletId },
@@ -177,6 +182,7 @@ export class WalletService {
           balanceBefore,
           balanceAfter,
           referenceId,
+          referenceType: referenceType ?? null,
           metadata: { description },
         },
       }),
@@ -196,6 +202,7 @@ export class WalletService {
     type: WalletTransactionType,
     description: string,
     referenceId?: string,
+    referenceType?: string,
   ) {
     const wallet = await tx.wallet.findUniqueOrThrow({
       where: { id: walletId },
@@ -226,6 +233,7 @@ export class WalletService {
           balanceBefore,
           balanceAfter,
           referenceId,
+          referenceType: referenceType ?? null,
           metadata: { description },
         },
       }),
@@ -244,6 +252,7 @@ export class WalletService {
     amount: Decimal | number | string,
     description: string,
     referenceId?: string,
+    referenceType?: string,
   ) {
     const wallet = await tx.wallet.findUniqueOrThrow({
       where: { id: walletId },
@@ -273,6 +282,7 @@ export class WalletService {
           balanceBefore,
           balanceAfter: balanceBefore, // balance unchanged
           referenceId,
+          referenceType: referenceType ?? null,
           metadata: { description },
         },
       }),
