@@ -84,7 +84,13 @@ export class AdminService {
 
   async listOrders(page = 1, limit = 20, filters?: { status?: string; userId?: string }) {
     const where: { status?: OrderStatus; userId?: string } = {};
-    if (filters?.status) where.status = filters.status as OrderStatus;
+    if (filters?.status) {
+      const validStatuses = Object.values(OrderStatus);
+      if (!validStatuses.includes(filters.status as OrderStatus)) {
+        throw new BadRequestException(`Invalid status: ${filters.status}`);
+      }
+      where.status = filters.status as OrderStatus;
+    }
     if (filters?.userId) where.userId = filters.userId;
 
     const [items, total] = await Promise.all([
@@ -121,15 +127,15 @@ export class AdminService {
     if (order.status !== OrderStatus.FAILED)
       throw new BadRequestException('Only failed orders can be retried');
 
-    await this.prisma.order.update({
-      where: { id },
-      data: { status: OrderStatus.PENDING, retryCount: 0 },
-    });
     await this.topupQueue.add(
       'process-topup',
       { orderId: id, userId: order.userId, gameProductId: order.gameProductId },
       { attempts: 3, backoff: { type: 'exponential', delay: 5000 } },
     );
+    await this.prisma.order.update({
+      where: { id },
+      data: { status: OrderStatus.PENDING, retryCount: 0 },
+    });
     return { message: 'Order queued for retry' };
   }
 
