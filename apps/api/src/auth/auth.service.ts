@@ -27,16 +27,34 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(dto.password, 12);
     const referralCode = nanoid();
 
+    // If a referral code was passed, find the referrer
+    let referredById: string | undefined;
+    if (dto.referredBy) {
+      const referrer = await this.prisma.user.findUnique({ where: { referralCode: dto.referredBy } });
+      if (referrer) {
+        referredById = referrer.id;
+      }
+    }
+
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
         passwordHash,
         displayName: dto.displayName,
         referralCode,
+        referredById,
         wallet: { create: { balance: 0, lockedBalance: 0 } },
       },
       select: { id: true, email: true, displayName: true, role: true, referralCode: true },
     });
+
+    // Increment totalReferrals for the referrer if they have an affiliate record
+    if (referredById) {
+      await this.prisma.affiliate.updateMany({
+        where: { userId: referredById },
+        data: { totalReferrals: { increment: 1 } },
+      });
+    }
 
     const tokens = await this.generateTokens(user.id, user.email, user.role);
     return { user, ...tokens };

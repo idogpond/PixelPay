@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { WalletService } from '../wallet/wallet.service';
 import { ProvidersService } from '../providers/providers.service';
 import { CashbackService } from '../cashback/cashback.service';
+import { AffiliatesService } from '../affiliates/affiliates.service';
 import { OrdersGateway } from './orders.gateway';
 
 interface TopupJobData {
@@ -24,6 +25,7 @@ export class TopupProcessor extends WorkerHost {
     private wallet: WalletService,
     private providers: ProvidersService,
     private cashback: CashbackService,
+    private affiliates: AffiliatesService,
     private gateway: OrdersGateway,
   ) {
     super();
@@ -96,6 +98,12 @@ export class TopupProcessor extends WorkerHost {
               Number(order.totalPrice),
               product.gameId,
             );
+          }
+
+          // Award affiliate commission if buyer was referred
+          const buyer = await this.prisma.user.findUnique({ where: { id: userId }, select: { referredById: true } });
+          if (buyer?.referredById) {
+            await this.affiliates.awardCommission(buyer.referredById, orderId, Number(order.totalPrice));
           }
 
           this.gateway.emitOrderStatus(userId, orderId, 'COMPLETED');
