@@ -45,10 +45,10 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user.isActive) throw new UnauthorizedException('Invalid credentials');
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
-    if (!user.isActive) throw new UnauthorizedException('Account is disabled');
-    return user;
+    return { id: user.id, email: user.email, role: user.role };
   }
 
   async login(user: { id: string; email: string; role: string }) {
@@ -59,9 +59,21 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(userId: string) {
-    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
-    return this.generateTokens(user.id, user.email, user.role);
+  async refreshTokens(refreshToken: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync<{ sub: string; email: string; role: string }>(
+        refreshToken,
+        { secret: this.config.get<string>('jwt.refreshSecret') },
+      );
+      return this.generateTokens(payload.sub, payload.email, payload.role);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+  }
+
+  async logout() {
+    // Phase 1: stateless logout — client discards tokens
+    return { message: 'Logged out successfully' };
   }
 
   private async generateTokens(userId: string, email: string, role: string) {
