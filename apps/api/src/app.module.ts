@@ -17,6 +17,7 @@ import { CouponsModule } from './coupons/coupons.module';
 import { CashbackModule } from './cashback/cashback.module';
 import { AffiliatesModule } from './affiliates/affiliates.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     CashbackModule,
     AffiliatesModule,
     NotificationsModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
