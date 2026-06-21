@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { WalletModule } from './wallet/wallet.module';
 import { PaymentsModule } from './payments/payments.module';
 import { GamesModule } from './games/games.module';
+import { ProvidersModule } from './providers/providers.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { GamesModule } from './games/games.module';
     WalletModule,
     PaymentsModule,
     GamesModule,
+    ProvidersModule,
   ],
 })
 export class AppModule {}
