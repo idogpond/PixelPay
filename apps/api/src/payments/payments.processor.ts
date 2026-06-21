@@ -28,14 +28,17 @@ export class PaymentsProcessor extends WorkerHost {
 
     if (chargeStatus.status === 'paid') {
       await this.prisma.$transaction(async (tx) => {
-        // 1. Update payment status
-        await tx.payment.update({
-          where: { id: paymentId },
+        // 1. Update payment status with atomic idempotency guard
+        const updated = await tx.payment.updateMany({
+          where: { id: paymentId, status: PaymentStatus.PENDING },
           data: {
             status: PaymentStatus.COMPLETED,
             paidAt: chargeStatus.paidAt ?? new Date(),
           },
         });
+
+        // If another concurrent request already processed it, bail out
+        if (updated.count === 0) return;
 
         // 2. Look up wallet by userId inside tx
         const walletRecord = await tx.wallet.findUniqueOrThrow({

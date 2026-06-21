@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { Decimal } from '@prisma/client/runtime/library';
 import { PaymentMethod, PaymentStatus, WalletTransactionType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { WalletService } from '../wallet/wallet.service';
@@ -29,7 +30,7 @@ export class PaymentsService {
       data: {
         userId,
         paymentMethod: PaymentMethod.PROMPTPAY,
-        amount: dto.amount,
+        amount: new Decimal(dto.amount.toString()),
         currency: 'THB',
         status: PaymentStatus.PENDING,
       },
@@ -96,14 +97,17 @@ export class PaymentsService {
 
     if (payload.status === 'paid' || payload.status === 'pay') {
       await this.prisma.$transaction(async (tx) => {
-        // 1. Update payment status
-        await tx.payment.update({
-          where: { id: payment.id },
+        // 1. Update payment status with atomic idempotency guard
+        const updated = await tx.payment.updateMany({
+          where: { id: payment.id, status: PaymentStatus.PENDING },
           data: {
             status: PaymentStatus.COMPLETED,
             paidAt: payload.paidAt ? new Date(payload.paidAt) : new Date(),
           },
         });
+
+        // If another concurrent request already processed it, bail out
+        if (updated.count === 0) return;
 
         // 2. Look up wallet by userId inside tx
         const walletRecord = await tx.wallet.findUniqueOrThrow({
