@@ -6,11 +6,13 @@ import { TopupProcessor } from './orders.processor';
 import { OrdersGateway } from './orders.gateway';
 import { WalletModule } from '../wallet/wallet.module';
 import { ProvidersModule } from '../providers/providers.module';
+import { CashbackModule } from '../cashback/cashback.module';
 
 @Module({
   imports: [
     WalletModule,
     ProvidersModule,
+    CashbackModule,
     BullModule.registerQueue({ name: 'topup' }),
   ],
   providers: [OrdersService, TopupProcessor, OrdersGateway],

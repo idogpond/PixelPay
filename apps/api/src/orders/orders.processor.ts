@@ -6,6 +6,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
 import { WalletService } from '../wallet/wallet.service';
 import { ProvidersService } from '../providers/providers.service';
+import { CashbackService } from '../cashback/cashback.service';
 import { OrdersGateway } from './orders.gateway';
 
 interface TopupJobData {
@@ -22,6 +23,7 @@ export class TopupProcessor extends WorkerHost {
     private prisma: PrismaService,
     private wallet: WalletService,
     private providers: ProvidersService,
+    private cashback: CashbackService,
     private gateway: OrdersGateway,
   ) {
     super();
@@ -84,6 +86,17 @@ export class TopupProcessor extends WorkerHost {
               'ORDER',
             );
           });
+
+          // Evaluate and credit cashback after successful completion
+          const product = await this.prisma.gameProduct.findUnique({ where: { id: gameProductId } });
+          if (product) {
+            await this.cashback.evaluateAndCredit(
+              userId,
+              orderId,
+              Number(order.totalPrice),
+              product.gameId,
+            );
+          }
 
           this.gateway.emitOrderStatus(userId, orderId, 'COMPLETED');
           this.logger.log(`Order ${orderId} completed via ${pp.provider.slug}`);
