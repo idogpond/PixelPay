@@ -8,6 +8,7 @@ import { WalletService } from '../wallet/wallet.service';
 import { ProvidersService } from '../providers/providers.service';
 import { CashbackService } from '../cashback/cashback.service';
 import { AffiliatesService } from '../affiliates/affiliates.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { OrdersGateway } from './orders.gateway';
 
 interface TopupJobData {
@@ -26,6 +27,7 @@ export class TopupProcessor extends WorkerHost {
     private providers: ProvidersService,
     private cashback: CashbackService,
     private affiliates: AffiliatesService,
+    private notificationsService: NotificationsService,
     private gateway: OrdersGateway,
   ) {
     super();
@@ -106,6 +108,28 @@ export class TopupProcessor extends WorkerHost {
             await this.affiliates.awardCommission(buyer.referredById, orderId, Number(order.totalPrice));
           }
 
+          // Send order-completed notification (after transaction commits)
+          try {
+            const notifProduct = await this.prisma.gameProduct.findUnique({
+              where: { id: gameProductId },
+              select: { name: true },
+            });
+            await this.notificationsService.send({
+              userId,
+              type: 'ORDER_COMPLETED',
+              channel: 'EMAIL',
+              title: 'Order Completed',
+              body: `Your order ${order.orderNumber} has been completed.`,
+              metadata: {
+                orderNumber: order.orderNumber,
+                productName: notifProduct?.name,
+                gameUid: order.gameUid,
+              },
+            });
+          } catch (notifErr: any) {
+            this.logger.warn(`Notification send failed for order ${orderId}: ${notifErr.message}`);
+          }
+
           this.gateway.emitOrderStatus(userId, orderId, 'COMPLETED');
           this.logger.log(`Order ${orderId} completed via ${pp.provider.slug}`);
           return;
@@ -151,6 +175,27 @@ export class TopupProcessor extends WorkerHost {
         'ORDER',
       );
     });
+    // Send order-failed notification (outside transaction)
+    try {
+      const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+      const failedProduct = order
+        ? await this.prisma.gameProduct.findUnique({ where: { id: order.gameProductId }, select: { name: true } })
+        : null;
+      await this.notificationsService.send({
+        userId,
+        type: 'ORDER_FAILED',
+        channel: 'EMAIL',
+        title: 'Order Failed',
+        body: `Your order could not be completed. Balance refunded.`,
+        metadata: {
+          orderNumber: order?.orderNumber,
+          productName: failedProduct?.name,
+        },
+      });
+    } catch (notifErr: any) {
+      this.logger.warn(`Notification send failed for failed order ${orderId}: ${notifErr.message}`);
+    }
+
     this.gateway.emitOrderStatus(userId, orderId, 'FAILED');
     this.logger.error(`Order ${orderId} failed: ${reason}`);
   }

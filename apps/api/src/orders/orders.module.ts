@@ -8,6 +8,7 @@ import { WalletModule } from '../wallet/wallet.module';
 import { ProvidersModule } from '../providers/providers.module';
 import { CashbackModule } from '../cashback/cashback.module';
 import { AffiliatesModule } from '../affiliates/affiliates.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AffiliatesModule } from '../affiliates/affiliates.module';
     ProvidersModule,
     CashbackModule,
     AffiliatesModule,
+    NotificationsModule,
     BullModule.registerQueue({ name: 'topup' }),
   ],
   providers: [OrdersService, TopupProcessor, OrdersGateway],
