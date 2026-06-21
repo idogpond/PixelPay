@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
 import { PaymentMethod } from '@prisma/client';
 
 export class CreateOrderDto {
@@ -8,6 +8,7 @@ export class CreateOrderDto {
   @IsEnum(PaymentMethod)
   paymentMethod!: PaymentMethod;
 
+  @IsNotEmpty()
   @IsString()
   @MaxLength(100)
   gameUid!: string;

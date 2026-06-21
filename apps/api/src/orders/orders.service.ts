@@ -26,37 +26,46 @@ export class OrdersService {
     });
     if (!product) throw new BadRequestException('Product not found or unavailable');
 
-    // Lock wallet balance inside a transaction before creating the order
-    await this.prisma.$transaction(async (tx) => {
+    const order = await this.prisma.$transaction(async (tx) => {
+      // 1. Look up wallet inside transaction
       const userWallet = await tx.wallet.findUniqueOrThrow({ where: { userId } });
+
+      // 2. Pre-generate order number
+      const orderNumber = generateOrderNumber();
+
+      // 3. Create order inside tx (get the id)
+      const newOrder = await tx.order.create({
+        data: {
+          orderNumber,
+          userId,
+          gameProductId: dto.gameProductId,
+          quantity: 1,
+          unitPrice: product.priceSell,
+          totalPrice: product.priceSell,
+          discountAmount: 0,
+          cashbackAmount: 0,
+          paymentMethod: dto.paymentMethod,
+          gameUid: dto.gameUid,
+          gameServer: dto.gameServer,
+          gameUsername: dto.gameUsername,
+          status: OrderStatus.PENDING,
+        },
+      });
+
+      // 4. Lock wallet with order.id as referenceId — same atomic unit
       await this.wallet.lock(
         tx,
         userWallet.id,
         product.priceSell,
         'Wallet lock for order',
-        undefined,
+        newOrder.id,
         'ORDER',
       );
+
+      return newOrder;
     });
 
-    const order = await this.prisma.order.create({
-      data: {
-        orderNumber: generateOrderNumber(),
-        userId,
-        gameProductId: dto.gameProductId,
-        quantity: 1,
-        unitPrice: product.priceSell,
-        totalPrice: product.priceSell,
-        discountAmount: 0,
-        cashbackAmount: 0,
-        paymentMethod: dto.paymentMethod as PaymentMethod,
-        gameUid: dto.gameUid,
-        gameServer: dto.gameServer,
-        gameUsername: dto.gameUsername,
-        status: OrderStatus.PENDING,
-      },
-    });
-
+    // Enqueue AFTER transaction commits — order exists and lock is applied
     await this.topupQueue.add(
       'process-topup',
       { orderId: order.id, userId, gameProductId: dto.gameProductId },
