@@ -110,10 +110,6 @@ export class TopupProcessor extends WorkerHost {
 
           // Send order-completed notification (after transaction commits)
           try {
-            const notifProduct = await this.prisma.gameProduct.findUnique({
-              where: { id: gameProductId },
-              select: { name: true },
-            });
             await this.notificationsService.send({
               userId,
               type: 'ORDER_COMPLETED',
@@ -122,7 +118,7 @@ export class TopupProcessor extends WorkerHost {
               body: `Your order ${order.orderNumber} has been completed.`,
               metadata: {
                 orderNumber: order.orderNumber,
-                productName: notifProduct?.name,
+                productName: product?.name,
                 gameUid: order.gameUid,
               },
             });

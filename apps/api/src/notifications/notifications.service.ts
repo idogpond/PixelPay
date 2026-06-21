@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { Prisma } from '@prisma/client';
+import { Prisma, NotificationChannel } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-
-export type NotificationChannel = 'EMAIL' | 'SMS' | 'IN_APP';
 
 export interface SendNotificationDto {
   userId: string;
@@ -27,7 +25,7 @@ export class NotificationsService {
       data: {
         userId: dto.userId,
         type: dto.type,
-        channel: dto.channel as any,
+        channel: dto.channel,
         title: dto.title,
         body: dto.body,
         metadata: (dto.metadata ?? {}) as Prisma.InputJsonValue,
