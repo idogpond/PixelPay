@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import axios from 'axios';
-import * as crypto from 'crypto';
+import { hmacSha256 } from '../../common/utils/crypto';
 import { IProviderAdapter, TopupParams, TopupResult } from './provider.interface';
 
 export class SmileOneAdapter implements IProviderAdapter {
@@ -15,7 +15,7 @@ export class SmileOneAdapter implements IProviderAdapter {
 
   private sign(params: Record<string, string>): string {
     const sorted = Object.keys(params).sort().map(k => `${k}=${params[k]}`).join('&');
-    return crypto.createHmac('sha256', this.apiSecret).update(sorted).digest('hex');
+    return hmacSha256(this.apiSecret, sorted);
   }
 
   async processTopup(params: TopupParams): Promise<TopupResult> {
