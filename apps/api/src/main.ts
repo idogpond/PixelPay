@@ -13,10 +13,10 @@ async function bootstrap() {
   );
 
   const config = app.get(ConfigService);
-  const port = config.get<number>('app.port', 3000);
+  const port = config.get<number>('app.port') ?? 3000;
 
   app.enableCors({
-    origin: config.get<string>('app.url'),
+    origin: config.get<string>('app.frontendUrl'),
     credentials: true,
   });
 
