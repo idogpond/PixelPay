@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { AffiliateStatus } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { customAlphabet } from 'nanoid';
 import { PrismaService } from '../prisma/prisma.service';
@@ -29,10 +30,12 @@ export class AuthService {
 
     // If a referral code was passed, find the referrer
     let referredById: string | undefined;
+    let referrerReferralCode: string | undefined;
     if (dto.referredBy) {
       const referrer = await this.prisma.user.findUnique({ where: { referralCode: dto.referredBy } });
       if (referrer) {
         referredById = referrer.id;
+        referrerReferralCode = referrer.referralCode;
       }
     }
 
@@ -48,11 +51,20 @@ export class AuthService {
       select: { id: true, email: true, displayName: true, role: true, referralCode: true },
     });
 
-    // Increment totalReferrals for the referrer if they have an affiliate record
-    if (referredById) {
-      await this.prisma.affiliate.updateMany({
+    // Increment totalReferrals for the referrer, creating affiliate record if missing
+    if (referredById && referrerReferralCode) {
+      await this.prisma.affiliate.upsert({
         where: { userId: referredById },
-        data: { totalReferrals: { increment: 1 } },
+        create: {
+          userId: referredById,
+          referralCode: referrerReferralCode,
+          commissionRate: 2.0,
+          status: AffiliateStatus.ACTIVE,
+          totalReferrals: 1,
+          totalEarnings: 0,
+          pendingEarnings: 0,
+        },
+        update: { totalReferrals: { increment: 1 } },
       });
     }
 
