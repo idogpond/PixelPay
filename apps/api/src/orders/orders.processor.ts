@@ -2,6 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { OrderStatus, WalletTransactionType } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
 import { WalletService } from '../wallet/wallet.service';
 import { ProvidersService } from '../providers/providers.service';
@@ -99,6 +100,7 @@ export class TopupProcessor extends WorkerHost {
       } catch (error: any) {
         lastError = error.message;
         this.logger.error(`Exception from ${pp.provider.slug}: ${error.message}`);
+        await this.prisma.order.update({ where: { id: orderId }, data: { retryCount: { increment: 1 } } });
       }
     }
 
@@ -109,7 +111,7 @@ export class TopupProcessor extends WorkerHost {
   private async handleFailure(
     orderId: string,
     userId: string,
-    totalPrice: any,
+    totalPrice: Decimal,
     reason: string,
   ) {
     await this.prisma.$transaction(async (tx) => {
