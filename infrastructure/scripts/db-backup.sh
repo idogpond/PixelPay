@@ -5,8 +5,11 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_FILE="pixelpay_${TIMESTAMP}.dump"
 S3_PATH="s3://${S3_BUCKET}/db-backups/${BACKUP_FILE}"
 
+trap 'rm -f "/tmp/${BACKUP_FILE}"' EXIT
+
 echo "Starting backup: ${BACKUP_FILE}"
 
+# Requires PGPASSWORD env var to be set (provided by docker-compose via environment)
 pg_dump \
   --host="${DB_HOST}" \
   --port="${DB_PORT:-5432}" \
@@ -27,12 +30,17 @@ aws s3 ls "s3://${S3_BUCKET}/db-backups/" \
   --endpoint-url "${S3_ENDPOINT}" \
   | awk '{print $4}' \
   | while read -r file; do
-      file_date=$(echo "$file" | grep -oE '[0-9]{8}' | head -1)
-      if [ -n "$file_date" ] && [ "$file_date" -lt "$CUTOFF" ]; then
-        aws s3 rm "s3://${S3_BUCKET}/db-backups/${file}" \
-          --endpoint-url "${S3_ENDPOINT}"
-        echo "Deleted old backup: ${file}"
-      fi
+      # Only prune files matching our backup naming pattern
+      case "$file" in
+        pixelpay_*)
+          file_date=$(echo "$file" | grep -oE '[0-9]{8}' | head -1)
+          if [ -n "$file_date" ] && [ "$file_date" -lt "$CUTOFF" ]; then
+            aws s3 rm "s3://${S3_BUCKET}/db-backups/${file}" \
+              --endpoint-url "${S3_ENDPOINT}"
+            echo "Deleted old backup: ${file}"
+          fi
+          ;;
+      esac
     done
 
 echo "Backup complete: ${S3_PATH}"
