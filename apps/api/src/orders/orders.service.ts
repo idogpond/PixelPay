@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -16,6 +17,8 @@ import { generateOrderNumber } from '../common/utils/order-number';
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
   constructor(
     private prisma: PrismaService,
     private wallet: WalletService,
@@ -33,6 +36,7 @@ export class OrdersService {
     let discountAmount = 0;
     let couponId: string | undefined;
     if (dto.couponCode) {
+      // CouponsService.validate() does not atomically reserve the coupon, so no state to release on failure
       const couponResult = await this.coupons.validate(userId, {
         code: dto.couponCode,
         orderTotal: Number(product.priceSell),
@@ -90,6 +94,7 @@ export class OrdersService {
       } catch (couponErr: any) {
         // Coupon record failed to save — order is still valid but log the issue
         // In a future phase, consider rolling back the order here
+        this.logger.warn('Failed to apply coupon to order', couponErr?.message);
       }
     }
 
