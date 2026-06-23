@@ -19,6 +19,7 @@ import { AffiliatesModule } from './affiliates/affiliates.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AdminModule } from './admin/admin.module';
 import { ResellersModule } from './resellers/resellers.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ResellersModule } from './resellers/resellers.module';
       inject: [ConfigService],
     }),
     PrismaModule,
+    HealthModule,
     AuthModule,
     UsersModule,
     WalletModule,
