@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: pixelpay
+          POSTGRES_PASSWORD: pixelpay
+          POSTGRES_DB: pixelpay_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: cd apps/api && npx prisma generate
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgresql://pixelpay:pixelpay@localhost:5432/pixelpay_test
+        run: cd apps/api && npx prisma migrate deploy
+
+      - name: Run unit tests
+        env:
+          DATABASE_URL: postgresql://pixelpay:pixelpay@localhost:5432/pixelpay_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test_jwt_secret_64_chars_minimum_for_testing_purposes_only
+          JWT_REFRESH_SECRET: test_refresh_secret_64_chars_minimum_for_testing_purposes
+          ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef
+          JWT_EXPIRES_IN: 15m
+          JWT_REFRESH_EXPIRES_IN: 7d
+        run: cd apps/api && npm test -- --coverage
+
+      - name: Run e2e tests
+        env:
+          DATABASE_URL: postgresql://pixelpay:pixelpay@localhost:5432/pixelpay_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test_jwt_secret_64_chars_minimum_for_testing_purposes_only
+          JWT_REFRESH_SECRET: test_refresh_secret_64_chars_minimum_for_testing_purposes
+          ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef
+          JWT_EXPIRES_IN: 15m
+          JWT_REFRESH_EXPIRES_IN: 7d
+        run: cd apps/api && npm run test:e2e
+
+      - name: Build API
+        run: cd apps/api && npm run build
+
+      - name: Build Web
+        env:
+          NEXT_PUBLIC_API_URL: https://pixelpay.th/api/v1
+          NEXT_PUBLIC_WS_URL: wss://pixelpay.th
+        run: cd apps/web && npm run build
