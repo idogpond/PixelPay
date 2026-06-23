@@ -1,13 +1,11 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ResellerStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { OrdersService } from '../orders/orders.service';
 
 @Injectable()
 export class ResellersService {
   constructor(
     private prisma: PrismaService,
-    private orders: OrdersService,
   ) {}
 
   async apply(userId: string, dto: { companyName: string }) {
@@ -34,12 +32,14 @@ export class ResellersService {
     });
   }
 
-  suspend(id: string) {
+  async suspend(id: string) {
+    const reseller = await this.prisma.reseller.findUnique({ where: { id } });
+    if (!reseller) throw new NotFoundException('Reseller not found');
     return this.prisma.reseller.update({ where: { id }, data: { status: ResellerStatus.SUSPENDED } });
   }
 
   async getProducts(userId: string) {
-    const reseller = await this.prisma.reseller.findUnique({
+    const reseller = await this.prisma.reseller.findFirst({
       where: { userId, status: ResellerStatus.ACTIVE },
     });
     if (!reseller) throw new ForbiddenException('Active reseller account required');
