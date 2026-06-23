@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 type OrderStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
@@ -19,9 +19,15 @@ interface Props {
 
 export function OrderTracker({ orderId, initialStatus, userId }: Props) {
   const [status, setStatus] = useState<OrderStatus>(initialStatus);
+  const statusRef = useRef(status);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
 
   useEffect(() => {
-    if (status === 'COMPLETED' || status === 'FAILED') return;
+    if (statusRef.current === 'COMPLETED' || statusRef.current === 'FAILED') return;
 
     const socket: Socket = io(process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:3000', {
       path: '/orders',
@@ -29,11 +35,17 @@ export function OrderTracker({ orderId, initialStatus, userId }: Props) {
 
     socket.on('connect', () => socket.emit('join', `user:${userId}`));
     socket.on('order.status', (data: { orderId: string; status: OrderStatus }) => {
-      if (data.orderId === orderId) setStatus(data.status);
+      if (data.orderId === orderId) {
+        setStatus(data.status);
+        statusRef.current = data.status;
+        if (data.status === 'COMPLETED' || data.status === 'FAILED') {
+          socket.disconnect();
+        }
+      }
     });
 
     return () => { socket.disconnect(); };
-  }, [orderId, userId, status]);
+  }, [orderId, userId]);
 
   const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.PENDING;
 

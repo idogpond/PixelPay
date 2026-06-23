@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { apiFetch } from '../../lib/api-client';
 
@@ -20,6 +20,14 @@ export function QrPaymentModal({ amount, onClose, onSuccess }: Props) {
   const [error, setError] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(900); // 15 min
 
+  const onCloseRef = useRef(onClose);
+  const onSuccessRef = useRef(onSuccess);
+  const paymentRef = useRef(payment);
+
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+  useEffect(() => { onSuccessRef.current = onSuccess; }, [onSuccess]);
+  useEffect(() => { paymentRef.current = payment; }, [payment]);
+
   useEffect(() => {
     apiFetch<PaymentData>('/payments/promptpay', {
       method: 'POST',
@@ -31,15 +39,15 @@ export function QrPaymentModal({ amount, onClose, onSuccess }: Props) {
     if (!payment) return;
     const interval = setInterval(() => {
       setSecondsLeft((s) => {
-        if (s <= 1) { clearInterval(interval); onClose(); return 0; }
+        if (s <= 1) { clearInterval(interval); onCloseRef.current(); return 0; }
         return s - 1;
       });
-      apiFetch<{ status: string }>(`/payments/${payment.id}`).then((p) => {
-        if (p.status === 'COMPLETED') { clearInterval(interval); onSuccess(); }
+      apiFetch<{ status: string }>(`/payments/${paymentRef.current?.id}`).then((p) => {
+        if (p.status === 'COMPLETED') { clearInterval(interval); onSuccessRef.current(); }
       });
     }, 5000);
     return () => clearInterval(interval);
-  }, [payment, onClose, onSuccess]);
+  }, [payment]);
 
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = secondsLeft % 60;
