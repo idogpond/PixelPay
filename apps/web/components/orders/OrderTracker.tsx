@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { getAccessToken } from '../../lib/api-client';
 
 type OrderStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
@@ -29,11 +30,15 @@ export function OrderTracker({ orderId, initialStatus, userId }: Props) {
   useEffect(() => {
     if (statusRef.current === 'COMPLETED' || statusRef.current === 'FAILED') return;
 
-    const socket: Socket = io(process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:3000', {
-      path: '/orders',
+    const wsBase = process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:3000';
+    const token = getAccessToken();
+
+    // Connect to the /orders namespace directly in the URL (not as a `path` option)
+    const socket: Socket = io(`${wsBase}/orders`, {
+      auth: { token },
     });
 
-    socket.on('connect', () => socket.emit('join', `user:${userId}`));
+    socket.on('connect', () => socket.emit('join'));
     socket.on('order.status', (data: { orderId: string; status: OrderStatus }) => {
       if (data.orderId === orderId) {
         setStatus(data.status);

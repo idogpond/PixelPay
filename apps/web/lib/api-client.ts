@@ -6,6 +6,10 @@ export function setAccessToken(token: string | null) {
   accessToken = token;
 }
 
+export function getAccessToken(): string | null {
+  return accessToken;
+}
+
 export async function apiFetch<T>(
   path: string,
   options: RequestInit & { params?: Record<string, string> } = {},

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
+import { JwtModule } from '@nestjs/jwt';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
 import { TopupProcessor } from './orders.processor';
@@ -9,6 +10,7 @@ import { ProvidersModule } from '../providers/providers.module';
 import { CashbackModule } from '../cashback/cashback.module';
 import { AffiliatesModule } from '../affiliates/affiliates.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { CouponsModule } from '../coupons/coupons.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
     CashbackModule,
     AffiliatesModule,
     NotificationsModule,
+    CouponsModule,
+    JwtModule.register({}),
     BullModule.registerQueue({ name: 'topup' }),
   ],
   providers: [OrdersService, TopupProcessor, OrdersGateway],

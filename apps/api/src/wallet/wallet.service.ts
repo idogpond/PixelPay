@@ -52,6 +52,7 @@ export class WalletService {
   /**
    * Adds amount to wallet balance, creates WalletTransaction record.
    * Internal — accepts Prisma transaction client as first arg.
+   * Credit is safe without a guard since it only increases balance.
    */
   async credit(
     tx: PrismaTx,
@@ -62,19 +63,20 @@ export class WalletService {
     referenceId?: string,
     referenceType?: string,
   ) {
-    const wallet = await tx.wallet.findUniqueOrThrow({
+    const amountDecimal = new Decimal(amount.toString());
+
+    // Read balance before for the transaction record (for audit purposes only — not used in update)
+    const walletBefore = await tx.wallet.findUniqueOrThrow({
       where: { id: walletId },
       select: { id: true, balance: true },
     });
-
-    const balanceBefore = new Decimal(wallet.balance.toString());
-    const amountDecimal = new Decimal(amount.toString());
+    const balanceBefore = new Decimal(walletBefore.balance.toString());
     const balanceAfter = balanceBefore.add(amountDecimal);
 
     const [updatedWallet, txRecord] = await Promise.all([
       tx.wallet.update({
         where: { id: walletId },
-        data: { balance: balanceAfter },
+        data: { balance: { increment: amountDecimal } },
       }),
       tx.walletTransaction.create({
         data: {
@@ -96,6 +98,7 @@ export class WalletService {
   /**
    * Subtracts amount from wallet balance (throws if insufficient).
    * Internal — accepts Prisma transaction client as first arg.
+   * Uses atomic conditional updateMany to prevent lost-update / double-spend.
    */
   async debit(
     tx: PrismaTx,
@@ -106,45 +109,47 @@ export class WalletService {
     referenceId?: string,
     referenceType?: string,
   ) {
-    const wallet = await tx.wallet.findUniqueOrThrow({
+    const amountDecimal = new Decimal(amount.toString());
+
+    // Read snapshot for the audit record
+    const walletBefore = await tx.wallet.findUniqueOrThrow({
       where: { id: walletId },
       select: { id: true, balance: true },
     });
+    const balanceBefore = new Decimal(walletBefore.balance.toString());
+    const balanceAfter = balanceBefore.sub(amountDecimal);
 
-    const balanceBefore = new Decimal(wallet.balance.toString());
-    const amountDecimal = new Decimal(amount.toString());
+    // Atomic guard: only decrement if balance is still sufficient
+    const updated = await tx.wallet.updateMany({
+      where: { id: walletId, balance: { gte: amountDecimal } },
+      data: { balance: { decrement: amountDecimal } },
+    });
 
-    if (balanceBefore.lessThan(amountDecimal)) {
+    if (updated.count === 0) {
       throw new BadRequestException('Insufficient wallet balance');
     }
 
-    const balanceAfter = balanceBefore.sub(amountDecimal);
+    const txRecord = await tx.walletTransaction.create({
+      data: {
+        walletId,
+        type,
+        amount: amountDecimal,
+        balanceBefore,
+        balanceAfter,
+        referenceId,
+        referenceType: referenceType ?? null,
+        metadata: { description },
+      },
+    });
 
-    const [updatedWallet, txRecord] = await Promise.all([
-      tx.wallet.update({
-        where: { id: walletId },
-        data: { balance: balanceAfter },
-      }),
-      tx.walletTransaction.create({
-        data: {
-          walletId,
-          type,
-          amount: amountDecimal,
-          balanceBefore,
-          balanceAfter,
-          referenceId,
-          referenceType: referenceType ?? null,
-          metadata: { description },
-        },
-      }),
-    ]);
-
+    const updatedWallet = await tx.wallet.findUniqueOrThrow({ where: { id: walletId } });
     return { wallet: updatedWallet, transaction: txRecord };
   }
 
   /**
    * Moves amount from balance to lockedBalance. Creates LOCK transaction.
    * Internal — accepts Prisma transaction client as first arg.
+   * Uses atomic conditional updateMany to prevent lost-update / double-spend.
    */
   async lock(
     tx: PrismaTx,
@@ -154,46 +159,50 @@ export class WalletService {
     referenceId?: string,
     referenceType?: string,
   ) {
-    const wallet = await tx.wallet.findUniqueOrThrow({
+    const amountDecimal = new Decimal(amount.toString());
+
+    // Read snapshot for the audit record
+    const walletBefore = await tx.wallet.findUniqueOrThrow({
       where: { id: walletId },
       select: { id: true, balance: true, lockedBalance: true },
     });
+    const balanceBefore = new Decimal(walletBefore.balance.toString());
+    const balanceAfter = balanceBefore.sub(amountDecimal);
 
-    const balanceBefore = new Decimal(wallet.balance.toString());
-    const amountDecimal = new Decimal(amount.toString());
+    // Atomic guard: only move to locked if balance is still sufficient
+    const updated = await tx.wallet.updateMany({
+      where: { id: walletId, balance: { gte: amountDecimal } },
+      data: {
+        balance: { decrement: amountDecimal },
+        lockedBalance: { increment: amountDecimal },
+      },
+    });
 
-    if (balanceBefore.lessThan(amountDecimal)) {
+    if (updated.count === 0) {
       throw new BadRequestException('Insufficient balance to lock');
     }
 
-    const balanceAfter = balanceBefore.sub(amountDecimal);
-    const newLockedBalance = new Decimal(wallet.lockedBalance.toString()).add(amountDecimal);
+    const txRecord = await tx.walletTransaction.create({
+      data: {
+        walletId,
+        type: WalletTransactionType.LOCK,
+        amount: amountDecimal,
+        balanceBefore,
+        balanceAfter,
+        referenceId,
+        referenceType: referenceType ?? null,
+        metadata: { description },
+      },
+    });
 
-    const [updatedWallet, txRecord] = await Promise.all([
-      tx.wallet.update({
-        where: { id: walletId },
-        data: { balance: balanceAfter, lockedBalance: newLockedBalance },
-      }),
-      tx.walletTransaction.create({
-        data: {
-          walletId,
-          type: WalletTransactionType.LOCK,
-          amount: amountDecimal,
-          balanceBefore,
-          balanceAfter,
-          referenceId,
-          referenceType: referenceType ?? null,
-          metadata: { description },
-        },
-      }),
-    ]);
-
+    const updatedWallet = await tx.wallet.findUniqueOrThrow({ where: { id: walletId } });
     return { wallet: updatedWallet, transaction: txRecord };
   }
 
   /**
    * Moves amount back from lockedBalance to balance (for refunds). type = UNLOCK.
    * Internal — accepts Prisma transaction client as first arg.
+   * Uses atomic conditional updateMany to prevent lost-update.
    */
   async unlock(
     tx: PrismaTx,
@@ -204,47 +213,50 @@ export class WalletService {
     referenceId?: string,
     referenceType?: string,
   ) {
-    const wallet = await tx.wallet.findUniqueOrThrow({
+    const amountDecimal = new Decimal(amount.toString());
+
+    // Read snapshot for the audit record
+    const walletBefore = await tx.wallet.findUniqueOrThrow({
       where: { id: walletId },
       select: { id: true, balance: true, lockedBalance: true },
     });
+    const balanceBefore = new Decimal(walletBefore.balance.toString());
+    const balanceAfter = balanceBefore.add(amountDecimal);
 
-    const balanceBefore = new Decimal(wallet.balance.toString());
-    const lockedBefore = new Decimal(wallet.lockedBalance.toString());
-    const amountDecimal = new Decimal(amount.toString());
+    // Atomic guard: only move from locked if lockedBalance is sufficient
+    const updated = await tx.wallet.updateMany({
+      where: { id: walletId, lockedBalance: { gte: amountDecimal } },
+      data: {
+        balance: { increment: amountDecimal },
+        lockedBalance: { decrement: amountDecimal },
+      },
+    });
 
-    if (lockedBefore.lessThan(amountDecimal)) {
+    if (updated.count === 0) {
       throw new BadRequestException('Insufficient locked balance to unlock');
     }
 
-    const balanceAfter = balanceBefore.add(amountDecimal);
-    const newLockedBalance = lockedBefore.sub(amountDecimal);
+    const txRecord = await tx.walletTransaction.create({
+      data: {
+        walletId,
+        type,
+        amount: amountDecimal,
+        balanceBefore,
+        balanceAfter,
+        referenceId,
+        referenceType: referenceType ?? null,
+        metadata: { description },
+      },
+    });
 
-    const [updatedWallet, txRecord] = await Promise.all([
-      tx.wallet.update({
-        where: { id: walletId },
-        data: { balance: balanceAfter, lockedBalance: newLockedBalance },
-      }),
-      tx.walletTransaction.create({
-        data: {
-          walletId,
-          type,
-          amount: amountDecimal,
-          balanceBefore,
-          balanceAfter,
-          referenceId,
-          referenceType: referenceType ?? null,
-          metadata: { description },
-        },
-      }),
-    ]);
-
+    const updatedWallet = await tx.wallet.findUniqueOrThrow({ where: { id: walletId } });
     return { wallet: updatedWallet, transaction: txRecord };
   }
 
   /**
    * Reduces lockedBalance (for completing a topup — balance unchanged). type = TOPUP_DEBIT.
    * Internal — accepts Prisma transaction client as first arg.
+   * Uses atomic conditional updateMany to prevent lost-update.
    */
   async debitLocked(
     tx: PrismaTx,
@@ -254,40 +266,39 @@ export class WalletService {
     referenceId?: string,
     referenceType?: string,
   ) {
-    const wallet = await tx.wallet.findUniqueOrThrow({
+    const amountDecimal = new Decimal(amount.toString());
+
+    // Read snapshot for the audit record
+    const walletBefore = await tx.wallet.findUniqueOrThrow({
       where: { id: walletId },
       select: { id: true, balance: true, lockedBalance: true },
     });
+    const balanceBefore = new Decimal(walletBefore.balance.toString());
 
-    const balanceBefore = new Decimal(wallet.balance.toString());
-    const lockedBefore = new Decimal(wallet.lockedBalance.toString());
-    const amountDecimal = new Decimal(amount.toString());
+    // Atomic guard: only decrement lockedBalance if sufficient
+    const updated = await tx.wallet.updateMany({
+      where: { id: walletId, lockedBalance: { gte: amountDecimal } },
+      data: { lockedBalance: { decrement: amountDecimal } },
+    });
 
-    if (lockedBefore.lessThan(amountDecimal)) {
+    if (updated.count === 0) {
       throw new BadRequestException('Insufficient locked balance');
     }
 
-    const newLockedBalance = lockedBefore.sub(amountDecimal);
+    const txRecord = await tx.walletTransaction.create({
+      data: {
+        walletId,
+        type: WalletTransactionType.TOPUP_DEBIT,
+        amount: amountDecimal,
+        balanceBefore,
+        balanceAfter: balanceBefore, // balance unchanged
+        referenceId,
+        referenceType: referenceType ?? null,
+        metadata: { description },
+      },
+    });
 
-    const [updatedWallet, txRecord] = await Promise.all([
-      tx.wallet.update({
-        where: { id: walletId },
-        data: { lockedBalance: newLockedBalance },
-      }),
-      tx.walletTransaction.create({
-        data: {
-          walletId,
-          type: WalletTransactionType.TOPUP_DEBIT,
-          amount: amountDecimal,
-          balanceBefore,
-          balanceAfter: balanceBefore, // balance unchanged
-          referenceId,
-          referenceType: referenceType ?? null,
-          metadata: { description },
-        },
-      }),
-    ]);
-
+    const updatedWallet = await tx.wallet.findUniqueOrThrow({ where: { id: walletId } });
     return { wallet: updatedWallet, transaction: txRecord };
   }
 

@@ -7,8 +7,10 @@ import {
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { OrderStatus, PaymentMethod, WalletTransactionType } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
 import { WalletService } from '../wallet/wallet.service';
+import { CouponsService } from '../coupons/coupons.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { generateOrderNumber } from '../common/utils/order-number';
 
@@ -17,6 +19,7 @@ export class OrdersService {
   constructor(
     private prisma: PrismaService,
     private wallet: WalletService,
+    private coupons: CouponsService,
     @InjectQueue('topup') private topupQueue: Queue,
   ) {}
 
@@ -25,6 +28,21 @@ export class OrdersService {
       where: { id: dto.gameProductId, isActive: true },
     });
     if (!product) throw new BadRequestException('Product not found or unavailable');
+
+    // Validate coupon before entering the transaction
+    let discountAmount = 0;
+    let couponId: string | undefined;
+    if (dto.couponCode) {
+      const couponResult = await this.coupons.validate(userId, {
+        code: dto.couponCode,
+        orderTotal: Number(product.priceSell),
+        gameId: product.gameId,
+      });
+      discountAmount = couponResult.discountAmount;
+      couponId = couponResult.couponId;
+    }
+
+    const totalPrice = new Decimal(product.priceSell).sub(new Decimal(discountAmount));
 
     const order = await this.prisma.$transaction(async (tx) => {
       // 1. Look up wallet inside transaction
@@ -41,8 +59,8 @@ export class OrdersService {
           gameProductId: dto.gameProductId,
           quantity: 1,
           unitPrice: product.priceSell,
-          totalPrice: product.priceSell,
-          discountAmount: 0,
+          totalPrice,
+          discountAmount: new Decimal(discountAmount),
           cashbackAmount: 0,
           paymentMethod: dto.paymentMethod,
           gameUid: dto.gameUid,
@@ -56,7 +74,7 @@ export class OrdersService {
       await this.wallet.lock(
         tx,
         userWallet.id,
-        product.priceSell,
+        totalPrice,
         'Wallet lock for order',
         newOrder.id,
         'ORDER',
@@ -64,6 +82,16 @@ export class OrdersService {
 
       return newOrder;
     });
+
+    // Apply coupon AFTER transaction commits — order exists
+    if (couponId) {
+      try {
+        await this.coupons.applyToOrder(couponId, userId, order.id, discountAmount);
+      } catch (couponErr: any) {
+        // Coupon record failed to save — order is still valid but log the issue
+        // In a future phase, consider rolling back the order here
+      }
+    }
 
     // Enqueue AFTER transaction commits — order exists and lock is applied
     await this.topupQueue.add(

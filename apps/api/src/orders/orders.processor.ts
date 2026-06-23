@@ -93,19 +93,27 @@ export class TopupProcessor extends WorkerHost {
 
           // Evaluate and credit cashback after successful completion
           const product = await this.prisma.gameProduct.findUnique({ where: { id: gameProductId } });
-          if (product) {
-            await this.cashback.evaluateAndCredit(
-              userId,
-              orderId,
-              Number(order.totalPrice),
-              product.gameId,
-            );
+          try {
+            if (product) {
+              await this.cashback.evaluateAndCredit(
+                userId,
+                orderId,
+                Number(order.totalPrice),
+                product.gameId,
+              );
+            }
+          } catch (cashbackErr: any) {
+            this.logger.warn(`Cashback credit failed for order ${orderId}: ${cashbackErr.message}`);
           }
 
           // Award affiliate commission if buyer was referred
-          const buyer = await this.prisma.user.findUnique({ where: { id: userId }, select: { referredById: true } });
-          if (buyer?.referredById) {
-            await this.affiliates.awardCommission(buyer.referredById, orderId, Number(order.totalPrice));
+          try {
+            const buyer = await this.prisma.user.findUnique({ where: { id: userId }, select: { referredById: true } });
+            if (buyer?.referredById) {
+              await this.affiliates.awardCommission(buyer.referredById, orderId, Number(order.totalPrice));
+            }
+          } catch (affiliateErr: any) {
+            this.logger.warn(`Affiliate commission failed for order ${orderId}: ${affiliateErr.message}`);
           }
 
           // Send order-completed notification (after transaction commits)
