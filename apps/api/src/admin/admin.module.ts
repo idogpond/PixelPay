@@ -4,11 +4,13 @@ import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 import { AnalyticsModule } from '../analytics/analytics.module';
 import { AuditModule } from '../audit/audit.module';
+import { ResellersModule } from '../resellers/resellers.module';
 
 @Module({
   imports: [
     AnalyticsModule,
     AuditModule,
+    ResellersModule,
     BullModule.registerQueue({ name: 'topup' }),
   ],
   providers: [AdminService],

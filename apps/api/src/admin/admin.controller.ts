@@ -4,9 +4,11 @@ import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuditInterceptor } from '../audit/audit.interceptor';
 import { AdminService } from './admin.service';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { ResellersService } from '../resellers/resellers.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
@@ -16,6 +18,7 @@ export class AdminController {
   constructor(
     private admin: AdminService,
     private analytics: AnalyticsService,
+    private resellers: ResellersService,
   ) {}
 
   @Get('stats')
@@ -85,5 +88,20 @@ export class AdminController {
   @Get('analytics/users')
   getUserGrowth() {
     return this.analytics.getUserGrowth();
+  }
+
+  @Get('resellers')
+  listResellers(@Query('page') page = '1') {
+    return this.resellers.listResellers(+page);
+  }
+
+  @Patch('resellers/:id/approve')
+  approveReseller(@Param('id') id: string, @CurrentUser() admin: { id: string }) {
+    return this.resellers.approve(id, admin.id);
+  }
+
+  @Patch('resellers/:id/suspend')
+  suspendReseller(@Param('id') id: string) {
+    return this.resellers.suspend(id);
   }
 }
