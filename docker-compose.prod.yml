@@ -59,8 +59,10 @@ services:
       dockerfile: infrastructure/docker/Dockerfile.worker
     env_file: .env
     depends_on:
-      - redis
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
 
   postgres:
@@ -100,7 +102,8 @@ services:
     entrypoint: ["crond", "-f", "-d", "8"]
     restart: unless-stopped
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:
