@@ -13,11 +13,13 @@ interface Stats {
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    apiFetch<Stats>('/admin/stats').then(setStats).catch(() => {});
+    apiFetch<Stats>('/admin/stats').then(setStats).catch((e) => setError(e.message));
   }, []);
 
+  if (error) return <div className="p-8 text-red-500">Error: {error}</div>;
   if (!stats) return <div className="p-8 text-gray-400">Loading...</div>;
 
   return (

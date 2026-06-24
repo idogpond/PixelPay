@@ -27,7 +27,8 @@ export default function LoginPage() {
         body: JSON.stringify(data),
       });
       setUser(res.user, res.accessToken);
-      document.cookie = `pixelpay-token=${res.accessToken}; path=/; samesite=strict`;
+      document.cookie = `pixelpay-token=${encodeURIComponent(res.accessToken)}; path=/; samesite=strict`;
+      document.cookie = `pixelpay-refresh=${encodeURIComponent(res.refreshToken)}; path=/; samesite=strict`;
       router.push('/');
     } catch (e: any) {
       setError('root', { message: e.message });
