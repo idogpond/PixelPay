@@ -1,9 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateGameDto } from './dto/create-game.dto';
+import { UpdateGameDto } from './dto/update-game.dto';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class GamesService {
   constructor(private prisma: PrismaService) {}
+
+  // ── existing public methods (unchanged) ─────────────────────────────────
 
   findAll() {
     return this.prisma.game.findMany({
@@ -28,5 +34,55 @@ export class GamesService {
       where: { gameId: game.id, isActive: true },
       orderBy: { sortOrder: 'asc' },
     });
+  }
+
+  // ── admin methods ────────────────────────────────────────────────────────
+
+  adminListGames() {
+    return this.prisma.game.findMany({ orderBy: { sortOrder: 'asc' } });
+  }
+
+  async adminCreateGame(dto: CreateGameDto) {
+    const existing = await this.prisma.game.findUnique({ where: { slug: dto.slug } });
+    if (existing) throw new ConflictException(`Slug "${dto.slug}" is already in use`);
+    return this.prisma.game.create({ data: dto });
+  }
+
+  async adminUpdateGame(id: string, dto: UpdateGameDto) {
+    const game = await this.prisma.game.findUnique({ where: { id } });
+    if (!game) throw new NotFoundException('Game not found');
+    return this.prisma.game.update({ where: { id }, data: dto });
+  }
+
+  async adminDeleteGame(id: string) {
+    const game = await this.prisma.game.findUnique({ where: { id } });
+    if (!game) throw new NotFoundException('Game not found');
+    await this.prisma.gameProduct.deleteMany({ where: { gameId: id } });
+    await this.prisma.game.delete({ where: { id } });
+  }
+
+  adminListProducts(gameId: string) {
+    return this.prisma.gameProduct.findMany({
+      where: { gameId },
+      orderBy: { sortOrder: 'asc' },
+    });
+  }
+
+  async adminCreateProduct(gameId: string, dto: CreateProductDto) {
+    const game = await this.prisma.game.findUnique({ where: { id: gameId } });
+    if (!game) throw new NotFoundException('Game not found');
+    return this.prisma.gameProduct.create({ data: { ...dto, gameId } });
+  }
+
+  async adminUpdateProduct(id: string, dto: UpdateProductDto) {
+    const product = await this.prisma.gameProduct.findUnique({ where: { id } });
+    if (!product) throw new NotFoundException('Product not found');
+    return this.prisma.gameProduct.update({ where: { id }, data: dto });
+  }
+
+  async adminDeleteProduct(id: string) {
+    const product = await this.prisma.gameProduct.findUnique({ where: { id } });
+    if (!product) throw new NotFoundException('Product not found');
+    await this.prisma.gameProduct.delete({ where: { id } });
   }
 }
