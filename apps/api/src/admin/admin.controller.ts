@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -9,6 +9,11 @@ import { AuditInterceptor } from '../audit/audit.interceptor';
 import { AdminService } from './admin.service';
 import { AnalyticsService } from '../analytics/analytics.service';
 import { ResellersService } from '../resellers/resellers.service';
+import { GamesService } from '../games/games.service';
+import { CreateGameDto } from '../games/dto/create-game.dto';
+import { UpdateGameDto } from '../games/dto/update-game.dto';
+import { CreateProductDto } from '../games/dto/create-product.dto';
+import { UpdateProductDto } from '../games/dto/update-product.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
@@ -19,6 +24,7 @@ export class AdminController {
     private admin: AdminService,
     private analytics: AnalyticsService,
     private resellers: ResellersService,
+    private games: GamesService,
   ) {}
 
   @Get('stats')
@@ -103,5 +109,43 @@ export class AdminController {
   @Patch('resellers/:id/suspend')
   suspendReseller(@Param('id') id: string) {
     return this.resellers.suspend(id);
+  }
+
+  // ── game management ──────────────────────────────────────────────────────
+
+  @Get('games')
+  listGames() { return this.games.adminListGames(); }
+
+  @Post('games')
+  createGame(@Body() dto: CreateGameDto) { return this.games.adminCreateGame(dto); }
+
+  @Patch('games/:id')
+  updateGame(@Param('id') id: string, @Body() dto: UpdateGameDto) {
+    return this.games.adminUpdateGame(id, dto);
+  }
+
+  @Delete('games/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteGame(@Param('id') id: string) { return this.games.adminDeleteGame(id); }
+
+  // ── product management ───────────────────────────────────────────────────
+
+  @Get('games/:id/products')
+  listProducts(@Param('id') id: string) { return this.games.adminListProducts(id); }
+
+  @Post('games/:id/products')
+  createProduct(@Param('id') id: string, @Body() dto: CreateProductDto) {
+    return this.games.adminCreateProduct(id, dto);
+  }
+
+  @Patch('games/:id/products/:productId')
+  updateProduct(@Param('productId') productId: string, @Body() dto: UpdateProductDto) {
+    return this.games.adminUpdateProduct(productId, dto);
+  }
+
+  @Delete('games/:id/products/:productId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteProduct(@Param('productId') productId: string) {
+    return this.games.adminDeleteProduct(productId);
   }
 }

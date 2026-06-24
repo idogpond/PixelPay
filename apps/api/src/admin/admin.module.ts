@@ -5,12 +5,14 @@ import { AdminController } from './admin.controller';
 import { AnalyticsModule } from '../analytics/analytics.module';
 import { AuditModule } from '../audit/audit.module';
 import { ResellersModule } from '../resellers/resellers.module';
+import { GamesModule } from '../games/games.module';
 
 @Module({
   imports: [
     AnalyticsModule,
     AuditModule,
     ResellersModule,
+    GamesModule,
     BullModule.registerQueue({ name: 'topup' }),
   ],
   providers: [AdminService],
