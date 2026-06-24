@@ -28,7 +28,7 @@ export default function AdminGamesPage() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCreate = async (data: GameFormData) => {
     await apiFetch('/admin/games', { method: 'POST', body: JSON.stringify(data) });
@@ -45,8 +45,12 @@ export default function AdminGamesPage() {
 
   const handleDelete = async (game: Game) => {
     if (!confirm(`Delete "${game.name}"? This will also delete all its products.`)) return;
-    await apiFetch(`/admin/games/${game.id}`, { method: 'DELETE' });
-    load();
+    try {
+      await apiFetch(`/admin/games/${game.id}`, { method: 'DELETE' });
+      load();
+    } catch (e: any) {
+      setError(e.message);
+    }
   };
 
   if (error) return <div className="text-red-500">Error: {error}</div>;
