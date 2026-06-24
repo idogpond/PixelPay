@@ -7,6 +7,7 @@ const mockPrisma: any = {
   game: {
     findMany: jest.fn(),
     findUnique: jest.fn(),
+    findFirst: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
@@ -14,10 +15,14 @@ const mockPrisma: any = {
   gameProduct: {
     findMany: jest.fn(),
     findUnique: jest.fn(),
+    findFirst: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
     deleteMany: jest.fn(),
+  },
+  order: {
+    findFirst: jest.fn(),
   },
 };
 
@@ -72,6 +77,12 @@ describe('GamesService — admin methods', () => {
       const result = await service.adminUpdateGame('g1', { name: 'Updated' } as any);
       expect(result).toEqual({ id: 'g1', name: 'Updated' });
     });
+
+    it('throws ConflictException when slug is taken by another game', async () => {
+      mockPrisma.game.findUnique.mockResolvedValue({ id: 'g1' });
+      mockPrisma.game.findFirst.mockResolvedValue({ id: 'g2' });
+      await expect(service.adminUpdateGame('g1', { slug: 'taken' } as any)).rejects.toThrow(ConflictException);
+    });
   });
 
   describe('adminDeleteGame', () => {
@@ -80,8 +91,15 @@ describe('GamesService — admin methods', () => {
       await expect(service.adminDeleteGame('bad-id')).rejects.toThrow(NotFoundException);
     });
 
+    it('throws ConflictException when game products have order history', async () => {
+      mockPrisma.game.findUnique.mockResolvedValue({ id: 'g1' });
+      mockPrisma.order.findFirst.mockResolvedValue({ id: 'o1' });
+      await expect(service.adminDeleteGame('g1')).rejects.toThrow(ConflictException);
+    });
+
     it('deletes products then game when game exists', async () => {
       mockPrisma.game.findUnique.mockResolvedValue({ id: 'g1' });
+      mockPrisma.order.findFirst.mockResolvedValue(null);
       mockPrisma.gameProduct.deleteMany.mockResolvedValue({ count: 2 });
       mockPrisma.game.delete.mockResolvedValue({});
 
@@ -112,9 +130,18 @@ describe('GamesService — admin methods', () => {
 
     it('creates product when game exists', async () => {
       mockPrisma.game.findUnique.mockResolvedValue({ id: 'g1' });
+      mockPrisma.gameProduct.findUnique.mockResolvedValue(null);
       mockPrisma.gameProduct.create.mockResolvedValue({ id: 'p1', sku: 'S' });
       const result = await service.adminCreateProduct('g1', { name: 'P', sku: 'S', priceCost: 10, priceSell: 15 } as any);
       expect(result).toEqual({ id: 'p1', sku: 'S' });
+    });
+
+    it('throws ConflictException when SKU already exists', async () => {
+      mockPrisma.game.findUnique.mockResolvedValue({ id: 'g1' });
+      mockPrisma.gameProduct.findUnique.mockResolvedValue({ id: 'p-existing' });
+      await expect(
+        service.adminCreateProduct('g1', { name: 'P', sku: 'DUPE', priceCost: 1, priceSell: 2 } as any)
+      ).rejects.toThrow(ConflictException);
     });
   });
 
@@ -123,12 +150,24 @@ describe('GamesService — admin methods', () => {
       mockPrisma.gameProduct.findUnique.mockResolvedValue(null);
       await expect(service.adminUpdateProduct('bad-id', {} as any)).rejects.toThrow(NotFoundException);
     });
+
+    it('throws ConflictException when SKU is taken by another product', async () => {
+      mockPrisma.gameProduct.findUnique.mockResolvedValue({ id: 'p1' });
+      mockPrisma.gameProduct.findFirst.mockResolvedValue({ id: 'p2' });
+      await expect(service.adminUpdateProduct('p1', { sku: 'DUPE' } as any)).rejects.toThrow(ConflictException);
+    });
   });
 
   describe('adminDeleteProduct', () => {
     it('throws NotFoundException when product does not exist', async () => {
       mockPrisma.gameProduct.findUnique.mockResolvedValue(null);
       await expect(service.adminDeleteProduct('bad-id')).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws ConflictException when product has order history', async () => {
+      mockPrisma.gameProduct.findUnique.mockResolvedValue({ id: 'p1' });
+      mockPrisma.order.findFirst.mockResolvedValue({ id: 'o1' });
+      await expect(service.adminDeleteProduct('p1')).rejects.toThrow(ConflictException);
     });
   });
 });
