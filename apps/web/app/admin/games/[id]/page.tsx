@@ -33,8 +33,12 @@ export default function GameDetailPage() {
   const [modal, setModal] = useState<{ mode: 'create' } | { mode: 'edit'; product: Product } | null>(null);
 
   const loadGame = async () => {
-    const all = await apiFetch<Game[]>('/admin/games');
-    setGame(all.find((g) => g.id === id) ?? null);
+    try {
+      const all = await apiFetch<Game[]>('/admin/games');
+      setGame(all.find((g) => g.id === id) ?? null);
+    } catch (e: any) {
+      setError(e.message);
+    }
   };
 
   const loadProducts = async () => {
