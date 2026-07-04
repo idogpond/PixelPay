@@ -1,0 +1,302 @@
+{
+  "common": {
+    "loading": "กำลังโหลด…",
+    "error": "ข้อผิดพลาด: {message}",
+    "save": "บันทึก",
+    "saving": "กำลังบันทึก…",
+    "cancel": "ยกเลิก",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "search": "ค้นหา",
+    "previous": "← ก่อนหน้า",
+    "next": "ถัดไป →",
+    "pageOf": "หน้า {page} จาก {total}",
+    "active": "ใช้งาน",
+    "inactive": "ปิดใช้งาน",
+    "yes": "ใช่",
+    "no": "ไม่"
+  },
+  "nav": {
+    "orders": "รายการสั่งซื้อ",
+    "wallet": "กระเป๋าเงิน",
+    "affiliate": "ชวนเพื่อน",
+    "admin": "แอดมิน",
+    "credits": "เครดิต",
+    "logout": "ออกจากระบบ",
+    "login": "เข้าสู่ระบบ",
+    "getCredits": "เติมเครดิต",
+    "footerNote": "PixelPay — เติมเกมผ่านพร้อมเพย์"
+  },
+  "home": {
+    "heroLine1": "เติมไว",
+    "heroLine2": "เล่นไม่มีสะดุด",
+    "heroSub": "สแกน QR พร้อมเพย์ แล้วเครดิตเข้าเกมทันใจ ไม่ต้องรอ",
+    "promiseSpeed": "ออเดอร์สำเร็จในไม่กี่วินาที",
+    "promiseSafety": "จ่ายผ่านพร้อมเพย์ ติดตามสถานะแบบเรียลไทม์",
+    "promiseValue": "ราคายุติธรรมเป็นเงินบาท ไม่ต้องใช้บัตร",
+    "chooseGame": "เลือกเกม",
+    "noGames": "ยังไม่มีเกมเปิดให้บริการตอนนี้ — กลับมาดูใหม่เร็ว ๆ นี้"
+  },
+  "auth": {
+    "loginTitle": "ยินดีต้อนรับกลับ",
+    "loginSubtitle": "เข้าสู่ระบบเพื่อเติมเกมของคุณ",
+    "email": "อีเมล",
+    "password": "รหัสผ่าน",
+    "loggingIn": "กำลังเข้าสู่ระบบ…",
+    "login": "เข้าสู่ระบบ",
+    "newHere": "ยังไม่มีบัญชี?",
+    "createAccountLink": "สมัครสมาชิก",
+    "registerTitle": "สร้างบัญชีของคุณ",
+    "registerSubtitle": "เริ่มเติมเกมได้ในไม่ถึงนาที",
+    "displayName": "ชื่อที่แสดง",
+    "displayNamePlaceholder": "ชื่อของคุณ",
+    "creatingAccount": "กำลังสร้างบัญชี…",
+    "createAccount": "สมัครสมาชิก",
+    "haveAccount": "มีบัญชีอยู่แล้ว?",
+    "errors": {
+      "emailInvalid": "กรุณากรอกอีเมลให้ถูกต้อง",
+      "passwordRequired": "กรุณากรอกรหัสผ่าน",
+      "displayNameMin": "อย่างน้อย 2 ตัวอักษร"
+    }
+  },
+  "games": {
+    "pickPackage": "1 · เลือกแพ็กเกจ",
+    "enterDetails": "2 · กรอกข้อมูลของคุณ",
+    "noPackages": "ยังไม่มีแพ็กเกจสำหรับเกมนี้",
+    "gameUid": "UID เกม",
+    "gameUidPlaceholder": "ไอดีผู้เล่นในเกมของคุณ",
+    "server": "เซิร์ฟเวอร์",
+    "serverPlaceholder": "เช่น Asia",
+    "username": "ชื่อผู้ใช้",
+    "usernamePlaceholder": "ชื่อของคุณในเกม",
+    "coupon": "โค้ดส่วนลด (ถ้ามี)",
+    "placingOrder": "กำลังสั่งซื้อ…",
+    "payFromCredits": "ชำระ ฿{amount} จากเครดิต",
+    "pickToContinue": "เลือกแพ็กเกจเพื่อดำเนินการต่อ",
+    "paidFromCreditsNote": "ชำระจากเครดิต PixelPay ของคุณ เครดิตไม่พอ? เติมได้ที่หน้ากระเป๋าเงิน",
+    "errors": {
+      "uidRequired": "กรุณากรอก UID เกม",
+      "serverRequired": "แพ็กเกจนี้ต้องระบุเซิร์ฟเวอร์",
+      "usernameRequired": "แพ็กเกจนี้ต้องระบุชื่อผู้ใช้",
+      "pickFirst": "กรุณาเลือกแพ็กเกจก่อน"
+    }
+  },
+  "wallet": {
+    "title": "กระเป๋าเงินของคุณ",
+    "credits": "เครดิต",
+    "onHold": "พักยอด",
+    "addCredits": "เติมเครดิต",
+    "customAmount": "ระบุจำนวนเอง (฿)",
+    "topUpVia": "เติม ฿{amount} ผ่านพร้อมเพย์",
+    "enterAmount": "กรุณาระบุจำนวนเงิน",
+    "history": "ประวัติธุรกรรม",
+    "table": {
+      "date": "วันที่",
+      "type": "ประเภท",
+      "description": "รายละเอียด",
+      "amount": "จำนวน",
+      "balance": "ยอดคงเหลือ"
+    },
+    "noTransactions": "ยังไม่มีธุรกรรม",
+    "types": {
+      "deposit": "ฝากเงิน",
+      "withdrawal": "ถอนเงิน",
+      "topup": "เติมเกม",
+      "refund": "คืนเงิน",
+      "cashback": "เงินคืน",
+      "affiliate": "ค่าแนะนำ",
+      "hold": "พักยอด",
+      "holdReleased": "ปลดพักยอด"
+    },
+    "qr": {
+      "scanToPay": "สแกนเพื่อชำระเงิน",
+      "amountDue": "ยอดชำระ",
+      "expiresIn": "หมดเวลาใน"
+    }
+  },
+  "orders": {
+    "title": "รายการสั่งซื้อของคุณ",
+    "table": {
+      "order": "คำสั่งซื้อ",
+      "placed": "สั่งเมื่อ",
+      "total": "ยอดรวม",
+      "status": "สถานะ"
+    },
+    "view": "ดู",
+    "empty": "ยังไม่มีคำสั่งซื้อ — <link>เติมเกมเลย</link> เพื่อเริ่มต้น",
+    "allOrders": "← คำสั่งซื้อทั้งหมด",
+    "orderLabel": "คำสั่งซื้อ",
+    "rows": {
+      "game": "เกม",
+      "package": "แพ็กเกจ",
+      "gameUid": "UID เกม",
+      "server": "เซิร์ฟเวอร์",
+      "username": "ชื่อผู้ใช้",
+      "payment": "การชำระเงิน",
+      "placed": "สั่งเมื่อ",
+      "completed": "สำเร็จเมื่อ"
+    },
+    "paymentWallet": "เครดิต PixelPay",
+    "paymentPromptPay": "พร้อมเพย์",
+    "discount": "ส่วนลด:",
+    "totalPaid": "ยอดชำระรวม",
+    "orderStatus": "สถานะคำสั่งซื้อ",
+    "cancelConfirm": "ยกเลิกคำสั่งซื้อนี้? เครดิตจะถูกคืนเข้ากระเป๋าเงินของคุณ",
+    "cancelling": "กำลังยกเลิก…",
+    "cancelOrder": "ยกเลิกคำสั่งซื้อ",
+    "status": {
+      "pending": "รอดำเนินการ",
+      "processing": "กำลังดำเนินการ",
+      "completed": "สำเร็จ",
+      "failed": "ล้มเหลว",
+      "refunded": "คืนเงินแล้ว",
+      "cancelled": "ยกเลิกแล้ว"
+    }
+  },
+  "profile": {
+    "title": "โปรไฟล์ของคุณ",
+    "memberSince": "{email} · เป็นสมาชิกตั้งแต่ {date}",
+    "verified": "· ยืนยันแล้ว",
+    "displayNameSection": "ชื่อที่แสดง",
+    "displayName": "ชื่อที่แสดง",
+    "saved": "บันทึกแล้ว",
+    "changePassword": "เปลี่ยนรหัสผ่าน",
+    "currentPassword": "รหัสผ่านปัจจุบัน",
+    "newPassword": "รหัสผ่านใหม่",
+    "confirmPassword": "ยืนยันรหัสผ่านใหม่",
+    "updating": "กำลังอัปเดต…",
+    "updatePassword": "อัปเดตรหัสผ่าน",
+    "passwordChanged": "เปลี่ยนรหัสผ่านแล้ว",
+    "errors": {
+      "displayNameMin": "อย่างน้อย 2 ตัวอักษร",
+      "currentPasswordRequired": "กรุณากรอกรหัสผ่านปัจจุบัน",
+      "newPasswordMin": "อย่างน้อย 8 ตัวอักษร",
+      "newPasswordPattern": "ต้องมีตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก และตัวเลข",
+      "passwordMismatch": "รหัสผ่านไม่ตรงกัน"
+    }
+  },
+  "affiliate": {
+    "title": "โปรแกรมชวนเพื่อน",
+    "subtitle": "รับค่าคอมมิชชันทุกครั้งที่เพื่อนที่คุณชวนเติมเกม",
+    "suspendedNote": "บัญชีชวนเพื่อนของคุณถูกระงับชั่วคราว",
+    "referralCode": "โค้ดชวนเพื่อนของคุณ",
+    "copied": "คัดลอกแล้ว!",
+    "copyLink": "คัดลอกลิงก์ชวนเพื่อน",
+    "referrals": "เพื่อนที่ชวน",
+    "totalEarned": "รายได้รวม",
+    "pendingPayout": "รอจ่าย",
+    "commissions": "ค่าคอมมิชชัน",
+    "table": {
+      "date": "วันที่",
+      "order": "คำสั่งซื้อ",
+      "orderTotal": "ยอดคำสั่งซื้อ",
+      "commission": "ค่าคอมมิชชัน",
+      "status": "สถานะ"
+    },
+    "noCommissions": "ยังไม่มีค่าคอมมิชชัน — แชร์ลิงก์ชวนเพื่อนเพื่อเริ่มสร้างรายได้",
+    "paid": "จ่ายแล้ว",
+    "pending": "รอดำเนินการ"
+  },
+  "admin": {
+    "nav": {
+      "badge": "แอดมิน",
+      "dashboard": "แดชบอร์ด",
+      "games": "เกม",
+      "orders": "คำสั่งซื้อ",
+      "users": "ผู้ใช้",
+      "backToStore": "← หน้าร้าน"
+    },
+    "dashboard": {
+      "title": "แดชบอร์ดแอดมิน",
+      "totalUsers": "ผู้ใช้ทั้งหมด",
+      "totalOrders": "คำสั่งซื้อทั้งหมด",
+      "pendingOrders": "คำสั่งซื้อรอดำเนินการ",
+      "revenue": "รายได้"
+    },
+    "games": {
+      "title": "เกม",
+      "newGame": "+ เพิ่มเกม",
+      "name": "ชื่อ",
+      "slug": "Slug",
+      "category": "หมวดหมู่",
+      "order": "ลำดับ",
+      "status": "สถานะ",
+      "noGames": "ยังไม่มีเกม กด \"+ เพิ่มเกม\" เพื่อสร้าง",
+      "products": "แพ็กเกจ",
+      "deleteConfirm": "ลบ \"{name}\"? แพ็กเกจทั้งหมดของเกมนี้จะถูกลบด้วย",
+      "newGameTitle": "เพิ่มเกม",
+      "editTitle": "แก้ไข — {name}",
+      "form": {
+        "name": "ชื่อ *",
+        "slugLabel": "Slug *",
+        "slugHint": "(ตัวพิมพ์เล็ก-ขีดกลาง)",
+        "slugPattern": "ตัวพิมพ์เล็ก ตัวเลข และขีดกลางเท่านั้น",
+        "category": "หมวดหมู่",
+        "logoUrl": "URL โลโก้",
+        "sortOrder": "ลำดับ",
+        "active": "ใช้งาน"
+      }
+    },
+    "products": {
+      "backToGames": "← เกม",
+      "title": "{name} — แพ็กเกจ",
+      "fallbackGame": "เกม",
+      "addProduct": "+ เพิ่มแพ็กเกจ",
+      "name": "ชื่อ",
+      "cost": "ทุน",
+      "sell": "ขาย",
+      "type": "ประเภท",
+      "status": "สถานะ",
+      "noProducts": "ยังไม่มีแพ็กเกจ กด \"+ เพิ่มแพ็กเกจ\" เพื่อสร้าง",
+      "deleteConfirm": "ลบแพ็กเกจ \"{name}\"?",
+      "addProductTitle": "เพิ่มแพ็กเกจ",
+      "editTitle": "แก้ไข — {name}",
+      "form": {
+        "name": "ชื่อแพ็กเกจ *",
+        "sku": "SKU *",
+        "currency": "สกุลเงิน",
+        "costPrice": "ราคาทุน (฿) *",
+        "sellPrice": "ราคาขาย (฿) *",
+        "type": "ประเภท",
+        "sortOrder": "ลำดับ",
+        "requiresServer": "ต้องระบุเซิร์ฟเวอร์",
+        "requiresUsername": "ต้องระบุชื่อผู้ใช้",
+        "active": "ใช้งาน"
+      }
+    },
+    "orders": {
+      "title": "คำสั่งซื้อ",
+      "allStatuses": "ทุกสถานะ",
+      "order": "คำสั่งซื้อ",
+      "customer": "ลูกค้า",
+      "product": "แพ็กเกจ",
+      "total": "ยอดรวม",
+      "placed": "สั่งเมื่อ",
+      "status": "สถานะ",
+      "actions": "การจัดการ",
+      "retry": "ลองใหม่",
+      "override": "เปลี่ยนสถานะ…",
+      "overrideConfirm": "เปลี่ยน {order} เป็น {status}?",
+      "noOrdersFilter": "ไม่มีคำสั่งซื้อตรงกับตัวกรองนี้",
+      "countSuffix": "· {count} รายการ"
+    },
+    "users": {
+      "title": "ผู้ใช้",
+      "searchPlaceholder": "ค้นหาอีเมลหรือชื่อ…",
+      "user": "ผู้ใช้",
+      "joined": "สมัครเมื่อ",
+      "verified": "ยืนยันแล้ว",
+      "role": "บทบาท",
+      "status": "สถานะ",
+      "actions": "การจัดการ",
+      "suspended": "ถูกระงับ",
+      "suspend": "ระงับ",
+      "reactivate": "เปิดใช้งาน",
+      "roleConfirm": "เปลี่ยน {email} เป็น {role}?",
+      "suspendConfirm": "ระงับ {email}?",
+      "reactivateConfirm": "เปิดใช้งาน {email}?",
+      "noUsers": "ไม่พบผู้ใช้",
+      "countSuffix": "· {count} คน"
+    }
+  }
+}
