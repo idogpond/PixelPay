@@ -1,15 +1,17 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { Clock, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { getAccessToken } from '../../lib/api-client';
+import { CreditCounter } from '../ui/CreditCounter';
 
 type OrderStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
-const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; icon: string }> = {
-  PENDING: { label: 'Pending', color: 'text-yellow-600 bg-yellow-50', icon: '⏳' },
-  PROCESSING: { label: 'Processing', color: 'text-blue-600 bg-blue-50', icon: '⚡' },
-  COMPLETED: { label: 'Completed', color: 'text-green-600 bg-green-50', icon: '✅' },
-  FAILED: { label: 'Failed', color: 'text-red-600 bg-red-50', icon: '❌' },
+const STATUS_CONFIG: Record<OrderStatus, { label: string; tone: 'gold' | 'neon' | 'mint' | 'pink'; Icon: typeof Clock }> = {
+  PENDING: { label: 'Pending', tone: 'gold', Icon: Clock },
+  PROCESSING: { label: 'Processing', tone: 'neon', Icon: Loader2 },
+  COMPLETED: { label: 'Completed', tone: 'mint', Icon: CheckCircle2 },
+  FAILED: { label: 'Failed', tone: 'pink', Icon: XCircle },
 };
 
 interface Props {
@@ -53,14 +55,19 @@ export function OrderTracker({ orderId, initialStatus, userId }: Props) {
   }, [orderId, userId]);
 
   const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.PENDING;
+  const isLive = status === 'PENDING' || status === 'PROCESSING';
 
   return (
-    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium ${config.color}`}>
-      <span>{config.icon}</span>
-      <span>{config.label}</span>
-      {(status === 'PENDING' || status === 'PROCESSING') && (
-        <span className="inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-      )}
-    </div>
+    <CreditCounter
+      label="Order status"
+      tone={config.tone}
+      live={isLive}
+      value={
+        <span className="inline-flex items-center gap-2">
+          <config.Icon size={16} className={status === 'PROCESSING' ? 'animate-spin' : ''} />
+          {config.label}
+        </span>
+      }
+    />
   );
 }

@@ -1,4 +1,10 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
+// Server-side (RSC) fetches may need a different host than the browser —
+// e.g. in docker-compose the API is `api:3000` internally but `localhost:4000`
+// from the host. API_URL_INTERNAL is only read server-side.
+const BASE =
+  (typeof window === 'undefined' ? process.env.API_URL_INTERNAL : undefined) ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  'http://localhost:3000/api/v1';
 
 let accessToken: string | null = null;
 

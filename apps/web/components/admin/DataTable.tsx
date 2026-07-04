@@ -14,25 +14,25 @@ interface Props<T> {
 
 export function DataTable<T extends { id: string }>({ columns, data, emptyMessage = 'No data.' }: Props<T>) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-gray-200">
-      <table className="min-w-full divide-y divide-gray-200 text-sm">
-        <thead className="bg-gray-50">
+    <div className="overflow-x-auto pixel-cut border border-frost/10 bg-panel">
+      <table className="min-w-full divide-y divide-frost/10 text-sm">
+        <thead className="bg-void-deep">
           <tr>
             {columns.map((col) => (
-              <th key={String(col.key)} className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
+              <th key={String(col.key)} className="px-4 py-3 text-left font-mono text-[10px] font-medium text-frost/60 uppercase tracking-wider">
                 {col.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-100">
+        <tbody className="divide-y divide-frost/5">
           {data.length === 0 ? (
-            <tr><td colSpan={columns.length} className="px-4 py-8 text-center text-gray-400">{emptyMessage}</td></tr>
+            <tr><td colSpan={columns.length} className="px-4 py-8 text-center text-frost/40">{emptyMessage}</td></tr>
           ) : (
             data.map((row) => (
-              <tr key={row.id} className="hover:bg-gray-50">
+              <tr key={row.id} className="hover:bg-panel-light/60">
                 {columns.map((col) => (
-                  <td key={String(col.key)} className="px-4 py-3 text-gray-700">
+                  <td key={String(col.key)} className="px-4 py-3 text-frost/80">
                     {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? '')}
                   </td>
                 ))}

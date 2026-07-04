@@ -42,73 +42,73 @@ export function ProductFormModal({ initial, onSubmit, onClose, title }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-lg font-bold mb-4">{title}</h2>
+    <div className="fixed inset-0 bg-void-deep/80 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+      <div className="pixel-cut bg-panel border border-frost/10 w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+        <h2 className="font-display text-lg text-frost mb-4">{title}</h2>
         <form onSubmit={handleSubmit(submit)} className="space-y-3">
           <div>
-            <label className="block text-sm font-medium mb-1">Product Name *</label>
-            <input {...register('name')} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="100 Diamonds" />
-            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+            <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">Product name *</label>
+            <input {...register('name')} className="w-full border border-frost/15 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" placeholder="100 Diamonds" />
+            {errors.name && <p className="text-pink text-xs mt-1">{errors.name.message}</p>}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">SKU *</label>
-              <input {...register('sku')} className="w-full border rounded-lg px-3 py-2 text-sm font-mono" placeholder="MLBB-100" />
-              {errors.sku && <p className="text-red-500 text-xs mt-1">{errors.sku.message}</p>}
+              <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">SKU *</label>
+              <input {...register('sku')} className="w-full border border-frost/15 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" placeholder="MLBB-100" />
+              {errors.sku && <p className="text-pink text-xs mt-1">{errors.sku.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Currency</label>
-              <input {...register('currency')} className="w-full border rounded-lg px-3 py-2 text-sm" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium mb-1">Cost Price (฿) *</label>
-              <input type="number" step="0.01" {...register('priceCost')} className="w-full border rounded-lg px-3 py-2 text-sm" />
-              {errors.priceCost && <p className="text-red-500 text-xs mt-1">{errors.priceCost.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Sell Price (฿) *</label>
-              <input type="number" step="0.01" {...register('priceSell')} className="w-full border rounded-lg px-3 py-2 text-sm" />
-              {errors.priceSell && <p className="text-red-500 text-xs mt-1">{errors.priceSell.message}</p>}
+              <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">Currency</label>
+              <input {...register('currency')} className="w-full border border-frost/15 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">Type</label>
-              <select {...register('productType')} className="w-full border rounded-lg px-3 py-2 text-sm">
+              <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">Cost price (฿) *</label>
+              <input type="number" step="0.01" {...register('priceCost')} className="w-full border border-frost/15 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" />
+              {errors.priceCost && <p className="text-pink text-xs mt-1">{errors.priceCost.message}</p>}
+            </div>
+            <div>
+              <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">Sell price (฿) *</label>
+              <input type="number" step="0.01" {...register('priceSell')} className="w-full border border-frost/15 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" />
+              {errors.priceSell && <p className="text-pink text-xs mt-1">{errors.priceSell.message}</p>}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">Type</label>
+              <select {...register('productType')} className="w-full border border-frost/15 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel">
                 <option value="DIRECT">DIRECT</option>
                 <option value="VOUCHER">VOUCHER</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Sort Order</label>
-              <input type="number" {...register('sortOrder')} className="w-full border rounded-lg px-3 py-2 text-sm" />
+              <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">Sort order</label>
+              <input type="number" {...register('sortOrder')} className="w-full border border-frost/15 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" />
             </div>
           </div>
           <div className="flex gap-6 pt-1">
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" {...register('requiresServer')} className="w-4 h-4" />
-              Requires Server
+            <label className="flex items-center gap-2 text-sm text-frost">
+              <input type="checkbox" {...register('requiresServer')} className="w-4 h-4 accent-pixel" />
+              Requires server
             </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" {...register('requiresUsername')} className="w-4 h-4" />
-              Requires Username
+            <label className="flex items-center gap-2 text-sm text-frost">
+              <input type="checkbox" {...register('requiresUsername')} className="w-4 h-4 accent-pixel" />
+              Requires username
             </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" {...register('isActive')} className="w-4 h-4" />
+            <label className="flex items-center gap-2 text-sm text-frost">
+              <input type="checkbox" {...register('isActive')} className="w-4 h-4 accent-pixel" />
               Active
             </label>
           </div>
           {errors.root && (
-            <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-red-600 text-sm">
+            <div className="bg-pink/10 border border-pink/30 px-3 py-2 text-pink text-sm">
               {errors.root.message}
             </div>
           )}
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 border rounded-lg py-2 text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
-            <button type="submit" disabled={isSubmitting} className="flex-1 bg-brand text-white rounded-lg py-2 text-sm font-semibold disabled:opacity-50">
+            <button type="button" onClick={onClose} className="flex-1 border border-frost/15 py-2 text-sm text-frost/60 hover:bg-panel-light">Cancel</button>
+            <button type="submit" disabled={isSubmitting} className="flex-1 grad-brand text-white py-2 text-sm font-bold hover:brightness-110 disabled:opacity-50 transition-colors">
               {isSubmitting ? 'Saving…' : 'Save'}
             </button>
           </div>

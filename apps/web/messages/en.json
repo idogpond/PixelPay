@@ -1,0 +1,302 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "error": "Error: {message}",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search",
+    "previous": "← Previous",
+    "next": "Next →",
+    "pageOf": "Page {page} of {total}",
+    "active": "Active",
+    "inactive": "Inactive",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "nav": {
+    "orders": "Orders",
+    "wallet": "Wallet",
+    "affiliate": "Affiliate",
+    "admin": "Admin",
+    "credits": "Credits",
+    "logout": "Log out",
+    "login": "Log in",
+    "getCredits": "Get credits",
+    "footerNote": "PixelPay — game top-ups over PromptPay"
+  },
+  "home": {
+    "heroLine1": "Top up fast.",
+    "heroLine2": "Play non-stop.",
+    "heroSub": "Scan a PromptPay QR and your credits land in the game before the code goes cold.",
+    "promiseSpeed": "Orders clear in seconds",
+    "promiseSafety": "Paid by PromptPay, tracked live",
+    "promiseValue": "Fair prices in THB, no card needed",
+    "chooseGame": "Choose a game",
+    "noGames": "No games are live right now — check back soon."
+  },
+  "auth": {
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Log in to top up your games",
+    "email": "Email",
+    "password": "Password",
+    "loggingIn": "Logging in…",
+    "login": "Log in",
+    "newHere": "New here?",
+    "createAccountLink": "Create an account",
+    "registerTitle": "Create your account",
+    "registerSubtitle": "Start topping up in under a minute",
+    "displayName": "Display name",
+    "displayNamePlaceholder": "Your name",
+    "creatingAccount": "Creating account…",
+    "createAccount": "Create account",
+    "haveAccount": "Already have an account?",
+    "errors": {
+      "emailInvalid": "Enter a valid email",
+      "passwordRequired": "Password is required",
+      "displayNameMin": "At least 2 characters"
+    }
+  },
+  "games": {
+    "pickPackage": "1 · Pick a package",
+    "enterDetails": "2 · Enter your details",
+    "noPackages": "No packages available for this game yet.",
+    "gameUid": "Game UID",
+    "gameUidPlaceholder": "Your in-game player ID",
+    "server": "Server",
+    "serverPlaceholder": "e.g. Asia",
+    "username": "Username",
+    "usernamePlaceholder": "Your in-game name",
+    "coupon": "Coupon code (optional)",
+    "placingOrder": "Placing order…",
+    "payFromCredits": "Pay ฿{amount} from credits",
+    "pickToContinue": "Pick a package to continue",
+    "paidFromCreditsNote": "Paid from your PixelPay credits. Short on credits? Top up on the wallet page.",
+    "errors": {
+      "uidRequired": "Game UID is required",
+      "serverRequired": "Server is required for this product",
+      "usernameRequired": "Username is required for this product",
+      "pickFirst": "Pick a package first"
+    }
+  },
+  "wallet": {
+    "title": "Your wallet",
+    "credits": "Credits",
+    "onHold": "On hold",
+    "addCredits": "Add credits",
+    "customAmount": "Custom amount (฿)",
+    "topUpVia": "Top up ฿{amount} via PromptPay",
+    "enterAmount": "Enter an amount",
+    "history": "Transaction history",
+    "table": {
+      "date": "Date",
+      "type": "Type",
+      "description": "Description",
+      "amount": "Amount",
+      "balance": "Balance"
+    },
+    "noTransactions": "No transactions yet.",
+    "types": {
+      "deposit": "Deposit",
+      "withdrawal": "Withdrawal",
+      "topup": "Top-up",
+      "refund": "Refund",
+      "cashback": "Cashback",
+      "affiliate": "Affiliate",
+      "hold": "Hold",
+      "holdReleased": "Hold released"
+    },
+    "qr": {
+      "scanToPay": "Scan to pay",
+      "amountDue": "Amount due",
+      "expiresIn": "Expires in"
+    }
+  },
+  "orders": {
+    "title": "Your orders",
+    "table": {
+      "order": "Order",
+      "placed": "Placed",
+      "total": "Total",
+      "status": "Status"
+    },
+    "view": "View",
+    "empty": "No orders yet — <link>top up a game</link> to get started.",
+    "allOrders": "← All orders",
+    "orderLabel": "Order",
+    "rows": {
+      "game": "Game",
+      "package": "Package",
+      "gameUid": "Game UID",
+      "server": "Server",
+      "username": "Username",
+      "payment": "Payment",
+      "placed": "Placed",
+      "completed": "Completed"
+    },
+    "paymentWallet": "PixelPay credits",
+    "paymentPromptPay": "PromptPay",
+    "discount": "Discount:",
+    "totalPaid": "Total paid",
+    "orderStatus": "Order status",
+    "cancelConfirm": "Cancel this order? Your credits will be released back to your wallet.",
+    "cancelling": "Cancelling…",
+    "cancelOrder": "Cancel order",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed",
+      "refunded": "Refunded",
+      "cancelled": "Cancelled"
+    }
+  },
+  "profile": {
+    "title": "Your profile",
+    "memberSince": "{email} · member since {date}",
+    "verified": "· verified",
+    "displayNameSection": "Display name",
+    "displayName": "Display name",
+    "saved": "Saved.",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "updating": "Updating…",
+    "updatePassword": "Update password",
+    "passwordChanged": "Password changed.",
+    "errors": {
+      "displayNameMin": "At least 2 characters",
+      "currentPasswordRequired": "Current password is required",
+      "newPasswordMin": "At least 8 characters",
+      "newPasswordPattern": "Needs an uppercase letter, a lowercase letter and a number",
+      "passwordMismatch": "Passwords do not match"
+    }
+  },
+  "affiliate": {
+    "title": "Affiliate program",
+    "subtitle": "Earn a commission every time someone you referred tops up.",
+    "suspendedNote": "Your affiliate account is currently suspended.",
+    "referralCode": "Your referral code",
+    "copied": "Copied!",
+    "copyLink": "Copy invite link",
+    "referrals": "Referrals",
+    "totalEarned": "Total earned",
+    "pendingPayout": "Pending payout",
+    "commissions": "Commissions",
+    "table": {
+      "date": "Date",
+      "order": "Order",
+      "orderTotal": "Order total",
+      "commission": "Commission",
+      "status": "Status"
+    },
+    "noCommissions": "No commissions yet — share your invite link to start earning.",
+    "paid": "Paid",
+    "pending": "Pending"
+  },
+  "admin": {
+    "nav": {
+      "badge": "Admin",
+      "dashboard": "Dashboard",
+      "games": "Games",
+      "orders": "Orders",
+      "users": "Users",
+      "backToStore": "← Store"
+    },
+    "dashboard": {
+      "title": "Admin dashboard",
+      "totalUsers": "Total users",
+      "totalOrders": "Total orders",
+      "pendingOrders": "Pending orders",
+      "revenue": "Revenue"
+    },
+    "games": {
+      "title": "Games",
+      "newGame": "+ New game",
+      "name": "Name",
+      "slug": "Slug",
+      "category": "Category",
+      "order": "Order",
+      "status": "Status",
+      "noGames": "No games yet. Click \"+ New game\" to create one.",
+      "products": "Products",
+      "deleteConfirm": "Delete \"{name}\"? This will also delete all its products.",
+      "newGameTitle": "New Game",
+      "editTitle": "Edit — {name}",
+      "form": {
+        "name": "Name *",
+        "slugLabel": "Slug *",
+        "slugHint": "(lowercase-hyphens)",
+        "slugPattern": "Lowercase, numbers and hyphens only",
+        "category": "Category",
+        "logoUrl": "Logo URL",
+        "sortOrder": "Sort order",
+        "active": "Active"
+      }
+    },
+    "products": {
+      "backToGames": "← Games",
+      "title": "{name} — Products",
+      "fallbackGame": "Game",
+      "addProduct": "+ Add product",
+      "name": "Name",
+      "cost": "Cost",
+      "sell": "Sell",
+      "type": "Type",
+      "status": "Status",
+      "noProducts": "No products yet. Click \"+ Add product\" to create one.",
+      "deleteConfirm": "Delete product \"{name}\"?",
+      "addProductTitle": "Add Product",
+      "editTitle": "Edit — {name}",
+      "form": {
+        "name": "Product name *",
+        "sku": "SKU *",
+        "currency": "Currency",
+        "costPrice": "Cost price (฿) *",
+        "sellPrice": "Sell price (฿) *",
+        "type": "Type",
+        "sortOrder": "Sort order",
+        "requiresServer": "Requires server",
+        "requiresUsername": "Requires username",
+        "active": "Active"
+      }
+    },
+    "orders": {
+      "title": "Orders",
+      "allStatuses": "All statuses",
+      "order": "Order",
+      "customer": "Customer",
+      "product": "Product",
+      "total": "Total",
+      "placed": "Placed",
+      "status": "Status",
+      "actions": "Actions",
+      "retry": "Retry",
+      "override": "Override…",
+      "overrideConfirm": "Set {order} to {status}?",
+      "noOrdersFilter": "No orders match this filter.",
+      "countSuffix": "· {count} orders"
+    },
+    "users": {
+      "title": "Users",
+      "searchPlaceholder": "Search email or name…",
+      "user": "User",
+      "joined": "Joined",
+      "verified": "Verified",
+      "role": "Role",
+      "status": "Status",
+      "actions": "Actions",
+      "suspended": "Suspended",
+      "suspend": "Suspend",
+      "reactivate": "Reactivate",
+      "roleConfirm": "Change {email} to {role}?",
+      "suspendConfirm": "Suspend {email}?",
+      "reactivateConfirm": "Reactivate {email}?",
+      "noUsers": "No users found.",
+      "countSuffix": "· {count} users"
+    }
+  }
+}

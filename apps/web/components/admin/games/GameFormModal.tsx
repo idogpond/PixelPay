@@ -46,49 +46,49 @@ export function GameFormModal({ initial, onSubmit, onClose, title }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-        <h2 className="text-lg font-bold mb-4">{title}</h2>
+    <div className="fixed inset-0 bg-void-deep/80 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+      <div className="pixel-cut bg-panel border border-frost/10 w-full max-w-md p-6">
+        <h2 className="font-display text-lg text-frost mb-4">{title}</h2>
         <form onSubmit={handleSubmit(submit)} className="space-y-3">
           <div>
-            <label className="block text-sm font-medium mb-1">Name *</label>
-            <input {...register('name')} className="w-full border rounded-lg px-3 py-2 text-sm" />
-            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+            <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">Name *</label>
+            <input {...register('name')} className="w-full border border-frost/15 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" />
+            {errors.name && <p className="text-pink text-xs mt-1">{errors.name.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Slug * <span className="text-gray-400 font-normal">(lowercase-hyphens)</span></label>
-            <input {...register('slug')} className="w-full border rounded-lg px-3 py-2 text-sm font-mono" placeholder="mobile-legends" />
-            {errors.slug && <p className="text-red-500 text-xs mt-1">{errors.slug.message}</p>}
+            <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">Slug * <span className="text-frost/30 normal-case font-body">(lowercase-hyphens)</span></label>
+            <input {...register('slug')} className="w-full border border-frost/15 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" placeholder="mobile-legends" />
+            {errors.slug && <p className="text-pink text-xs mt-1">{errors.slug.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Category</label>
-            <input {...register('category')} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="MOBA, RPG, FPS…" />
+            <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">Category</label>
+            <input {...register('category')} className="w-full border border-frost/15 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" placeholder="MOBA, RPG, FPS…" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Logo URL</label>
-            <input {...register('logoUrl')} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="https://…" />
-            {errors.logoUrl && <p className="text-red-500 text-xs mt-1">{errors.logoUrl.message}</p>}
+            <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">Logo URL</label>
+            <input {...register('logoUrl')} className="w-full border border-frost/15 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" placeholder="https://…" />
+            {errors.logoUrl && <p className="text-pink text-xs mt-1">{errors.logoUrl.message}</p>}
           </div>
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">Sort Order</label>
-              <input type="number" {...register('sortOrder')} className="w-full border rounded-lg px-3 py-2 text-sm" />
+              <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">Sort order</label>
+              <input type="number" {...register('sortOrder')} className="w-full border border-frost/15 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" />
             </div>
             <div className="flex items-end gap-2 pb-2">
-              <input type="checkbox" id="isActive" {...register('isActive')} className="w-4 h-4" />
-              <label htmlFor="isActive" className="text-sm font-medium">Active</label>
+              <input type="checkbox" id="isActive" {...register('isActive')} className="w-4 h-4 accent-pixel" />
+              <label htmlFor="isActive" className="text-sm font-medium text-frost">Active</label>
             </div>
           </div>
           {errors.root && (
-            <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-red-600 text-sm">
+            <div className="bg-pink/10 border border-pink/30 px-3 py-2 text-pink text-sm">
               {errors.root.message}
             </div>
           )}
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 border rounded-lg py-2 text-sm text-gray-600 hover:bg-gray-50">
+            <button type="button" onClick={onClose} className="flex-1 border border-frost/15 py-2 text-sm text-frost/60 hover:bg-panel-light">
               Cancel
             </button>
-            <button type="submit" disabled={isSubmitting} className="flex-1 bg-brand text-white rounded-lg py-2 text-sm font-semibold disabled:opacity-50">
+            <button type="submit" disabled={isSubmitting} className="flex-1 grad-brand text-white py-2 text-sm font-bold hover:brightness-110 disabled:opacity-50 transition-colors">
               {isSubmitting ? 'Saving…' : 'Save'}
             </button>
           </div>

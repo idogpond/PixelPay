@@ -4,10 +4,12 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
-    "start": "next start -p 3001"
+    "start": "next start -p 3001",
+    "check-messages": "node scripts/check-messages.mjs"
   },
   "dependencies": {
     "next": "14.2.3",
+    "next-intl": "^3.26.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "@tanstack/react-query": "^5.32.0",

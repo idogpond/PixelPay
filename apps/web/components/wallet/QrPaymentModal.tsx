@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { apiFetch } from '../../lib/api-client';
+import { CreditCounter } from '../ui/CreditCounter';
 
 interface Props {
   amount: number;
@@ -51,26 +52,48 @@ export function QrPaymentModal({ amount, onClose, onSuccess }: Props) {
 
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = secondsLeft % 60;
+  const urgent = secondsLeft <= 60;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4">
-        <h2 className="text-xl font-bold text-center mb-4">Scan to Pay</h2>
-        <p className="text-center text-2xl font-bold text-brand mb-4">
-          ฿{amount.toLocaleString('th-TH')}
+    <div className="fixed inset-0 bg-void-deep/85 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+      <div className="pixel-cut bg-panel-light border border-white/10 max-w-sm w-full p-6 text-frost">
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-neon text-center mb-2">
+          PromptPay
         </p>
-        {error && <p className="text-red-500 text-center">{error}</p>}
+        <h2 className="font-display text-2xl text-center text-pixel-bright mb-5">Scan to pay</h2>
+
+        <div className="flex justify-center mb-5">
+          <CreditCounter
+            label="Amount due"
+            value={`฿${amount.toLocaleString('th-TH')}`}
+            tone="neon"
+            size="lg"
+          />
+        </div>
+
+        {error && <p className="text-pink text-center text-sm">{error}</p>}
+
         {payment?.qrCodeUrl && (
           <>
-            <div className="flex justify-center mb-4">
-              <Image src={payment.qrCodeUrl} alt="PromptPay QR" width={240} height={240} />
+            <div className="flex justify-center mb-5 bg-white p-3">
+              <Image src={payment.qrCodeUrl} alt="PromptPay QR" width={220} height={220} />
             </div>
-            <p className="text-center text-gray-500 text-sm">
-              Expires in {minutes}:{String(seconds).padStart(2, '0')}
-            </p>
+            <div className="flex justify-center mb-5">
+              <CreditCounter
+                label="Expires in"
+                value={`${minutes}:${String(seconds).padStart(2, '0')}`}
+                tone={urgent ? 'pink' : 'neon'}
+                live={urgent}
+                size="sm"
+              />
+            </div>
           </>
         )}
-        <button onClick={onClose} className="w-full mt-4 border border-gray-300 rounded-lg py-2 text-gray-600 hover:bg-gray-50">
+
+        <button
+          onClick={onClose}
+          className="w-full border border-frost/25 py-2.5 text-frost/70 hover:bg-white/5 hover:text-frost transition-colors font-body"
+        >
           Cancel
         </button>
       </div>
