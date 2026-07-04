@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { getTranslations } from 'next-intl/server';
 import { apiFetch } from '../../lib/api-client';
 import { GameCard } from '../../components/games/GameCard';
 import { Zap, ShieldCheck, BadgePercent } from 'lucide-react';
@@ -14,12 +15,13 @@ interface Game {
 // The logo's own tagline — เติมเกมไว ปลอดภัย คุ้มค่า — is the value prop,
 // so the feature trio simply spells it out.
 const PROMISES = [
-  { th: 'เติมเกมไว', en: 'Orders clear in seconds', Icon: Zap },
-  { th: 'ปลอดภัย', en: 'Paid by PromptPay, tracked live', Icon: ShieldCheck },
-  { th: 'คุ้มค่า', en: 'Fair prices in THB, no card needed', Icon: BadgePercent },
-];
+  { th: 'เติมเกมไว', key: 'promiseSpeed', Icon: Zap },
+  { th: 'ปลอดภัย', key: 'promiseSafety', Icon: ShieldCheck },
+  { th: 'คุ้มค่า', key: 'promiseValue', Icon: BadgePercent },
+] as const;
 
 export default async function HomePage() {
+  const t = await getTranslations('home');
   const games = await apiFetch<Game[]>('/games').catch(() => []);
 
   return (
@@ -31,21 +33,21 @@ export default async function HomePage() {
               เติมเกมไว · ปลอดภัย · คุ้มค่า
             </p>
             <h1 className="font-display italic font-bold text-5xl sm:text-6xl leading-[1.02] max-w-2xl">
-              <span className="text-frost">Top up fast.</span>
+              <span className="text-frost">{t('heroLine1')}</span>
               <br />
-              <span className="grad-text">Play non-stop.</span>
+              <span className="grad-text">{t('heroLine2')}</span>
             </h1>
             <p className="text-frost/60 mt-5 max-w-md font-light">
-              Scan a PromptPay QR and your credits land in the game before the code goes cold.
+              {t('heroSub')}
             </p>
 
             <dl className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl">
-              {PROMISES.map(({ th, en, Icon }) => (
+              {PROMISES.map(({ th, key, Icon }) => (
                 <div key={th} className="flex items-start gap-3">
                   <Icon size={20} className="text-pixel-bright shrink-0 mt-1" />
                   <div>
                     <dt className="font-display font-semibold text-sm">{th}</dt>
-                    <dd className="text-frost/50 text-sm font-light">{en}</dd>
+                    <dd className="text-frost/50 text-sm font-light">{t(key)}</dd>
                   </div>
                 </div>
               ))}
@@ -61,13 +63,13 @@ export default async function HomePage() {
       </section>
 
       <section className="max-w-6xl mx-auto px-4 py-10">
-        <h2 className="font-display text-2xl text-frost mb-6">Choose a game</h2>
+        <h2 className="font-display text-2xl text-frost mb-6">{t('chooseGame')}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {games.map((g) => <GameCard key={g.id} {...g} />)}
         </div>
         {games.length === 0 && (
           <div className="text-center py-20 text-frost/40 font-body">
-            No games are live right now — check back soon.
+            {t('noGames')}
           </div>
         )}
       </section>
