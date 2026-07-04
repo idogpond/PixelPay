@@ -3,15 +3,19 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiFetch } from '../../lib/api-client';
 import { useAuthStore } from '../../stores/auth.store';
 import { CreditCounter } from '../ui/CreditCounter';
+import { LanguageSwitcher } from '../ui/LanguageSwitcher';
+import { ThemeToggle } from '../theme/ThemeToggle';
 
 interface Wallet {
   balance: string;
 }
 
 export function SiteHeader() {
+  const t = useTranslations('nav');
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -30,7 +34,7 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="bg-void-deep text-frost sticky top-0 z-40 border-b border-white/10">
+    <header className="bg-void-deep text-frost sticky top-0 z-40 border-b border-frost/10">
       <div className="glow-strip" />
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2.5">
@@ -41,28 +45,30 @@ export function SiteHeader() {
         </Link>
 
         <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <LanguageSwitcher />
           {user ? (
             <>
               <nav className="hidden sm:flex items-center gap-4">
                 <Link href="/orders" className="text-sm font-body text-frost/70 hover:text-pixel-bright transition-colors">
-                  Orders
+                  {t('orders')}
                 </Link>
                 <Link href="/wallet" className="text-sm font-body text-frost/70 hover:text-pixel-bright transition-colors">
-                  Wallet
+                  {t('wallet')}
                 </Link>
                 <Link href="/affiliate" className="text-sm font-body text-frost/70 hover:text-pixel-bright transition-colors">
-                  Affiliate
+                  {t('affiliate')}
                 </Link>
                 {user.role === 'ADMIN' && (
                   <Link href="/admin" className="text-sm font-body text-neon hover:text-pixel-bright transition-colors">
-                    Admin
+                    {t('admin')}
                   </Link>
                 )}
               </nav>
               {wallet && (
                 <Link href="/wallet">
                   <CreditCounter
-                    label="Credits"
+                    label={t('credits')}
                     value={`฿${Number(wallet.balance).toLocaleString('th-TH', { minimumFractionDigits: 2 })}`}
                     tone="neon"
                     size="sm"
@@ -79,19 +85,19 @@ export function SiteHeader() {
                 onClick={handleLogout}
                 className="text-sm font-body text-frost/70 hover:text-pixel-bright transition-colors"
               >
-                Log out
+                {t('logout')}
               </button>
             </>
           ) : (
             <>
               <Link href="/login" className="text-sm font-body text-frost/80 hover:text-pixel-bright transition-colors">
-                Log in
+                {t('login')}
               </Link>
               <Link
                 href="/register"
                 className="text-sm font-semibold font-body grad-brand text-white px-4 py-2 pixel-cut hover:brightness-110 transition-colors"
               >
-                Get credits
+                {t('getCredits')}
               </Link>
             </>
           )}

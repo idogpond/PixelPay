@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { apiFetch } from '../../../lib/api-client';
 import { useAuthStore } from '../../../stores/auth.store';
+import { LanguageSwitcher } from '../../../components/ui/LanguageSwitcher';
 
 const schema = z.object({
   email: z.string().email(),
@@ -43,6 +44,7 @@ export default function LoginPage() {
         <Link href="/" className="block mx-auto w-56 mb-2">
           <Image src="/logo.png" alt="PixelPay — เติมเกมไว ปลอดภัย คุ้มค่า" width={448} height={340} priority className="mix-blend-screen" />
         </Link>
+        <div className="flex justify-center mb-4"><LanguageSwitcher /></div>
         <div className="pixel-cut bg-panel border border-frost/10 p-8">
           <h1 className="font-display text-2xl text-center mb-1 text-frost">Welcome back</h1>
           <p className="text-center text-sm text-frost/50 mb-6">Log in to top up your games</p>
