@@ -1,3 +1,6 @@
+'use client';
+import { useTranslations } from 'next-intl';
+
 export type OrderStatus =
   | 'PENDING'
   | 'PROCESSING'
@@ -15,18 +18,19 @@ const STATUS_CLASSES: Record<OrderStatus, string> = {
   CANCELLED: 'bg-frost/10 text-frost/50',
 };
 
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  PENDING: 'Pending',
-  PROCESSING: 'Processing',
-  COMPLETED: 'Completed',
-  FAILED: 'Failed',
-  REFUNDED: 'Refunded',
-  CANCELLED: 'Cancelled',
+const STATUS_KEYS: Record<OrderStatus, string> = {
+  PENDING: 'pending',
+  PROCESSING: 'processing',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+  REFUNDED: 'refunded',
+  CANCELLED: 'cancelled',
 };
 
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {
+  const t = useTranslations('orders.status');
   const classes = STATUS_CLASSES[status] ?? STATUS_CLASSES.PENDING;
-  const label = STATUS_LABELS[status] ?? status;
+  const label = STATUS_KEYS[status] ? t(STATUS_KEYS[status]) : status;
   return (
     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${classes}`}>
       {label}

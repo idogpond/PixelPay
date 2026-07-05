@@ -1,8 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { apiFetch } from '../../../lib/api-client';
 import { OrderStatusBadge, OrderStatus } from '../../../components/orders/OrderStatusBadge';
+import { Pagination } from '../../../components/ui/Pagination';
 
 interface Order {
   id: string;
@@ -22,6 +24,8 @@ interface Paginated<T> {
 const LIMIT = 20;
 
 export default function OrdersPage() {
+  const t = useTranslations('orders');
+  const tc = useTranslations('common');
   const [data, setData] = useState<Paginated<Order> | null>(null);
   const [page, setPage] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -36,10 +40,10 @@ export default function OrdersPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <h1 className="font-display text-3xl text-frost mb-6">Your orders</h1>
+      <h1 className="font-display text-3xl text-frost mb-6">{t('title')}</h1>
 
-      {error && <div className="text-pink mb-4">Error: {error}</div>}
-      {!data && !error && <div className="text-frost/40 py-12">Loading…</div>}
+      {error && <div className="text-pink mb-4">{tc('error', { message: error })}</div>}
+      {!data && !error && <div className="text-frost/40 py-12">{tc('loading')}</div>}
 
       {data && (
         <>
@@ -47,10 +51,10 @@ export default function OrdersPage() {
             <table className="w-full text-sm">
               <thead className="bg-void-deep">
                 <tr>
-                  <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">Order</th>
-                  <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">Placed</th>
-                  <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">Total</th>
-                  <th className="text-center px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">Status</th>
+                  <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">{t('table.order')}</th>
+                  <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">{t('table.placed')}</th>
+                  <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">{t('table.total')}</th>
+                  <th className="text-center px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">{t('table.status')}</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
@@ -58,7 +62,11 @@ export default function OrdersPage() {
                 {data.items.length === 0 && (
                   <tr>
                     <td colSpan={5} className="text-center py-12 text-frost/40">
-                      No orders yet — <Link href="/" className="text-neon font-semibold hover:underline">top up a game</Link> to get started.
+                      {t.rich('empty', {
+                        link: (chunks) => (
+                          <Link href="/" className="text-neon font-semibold hover:underline">{chunks}</Link>
+                        ),
+                      })}
                     </td>
                   </tr>
                 )}
@@ -72,7 +80,7 @@ export default function OrdersPage() {
                     <td className="px-4 py-3 text-center"><OrderStatusBadge status={o.status} /></td>
                     <td className="px-4 py-3 text-right">
                       <Link href={`/orders/${o.id}`} className="text-neon hover:underline text-xs font-semibold">
-                        View
+                        {t('view')}
                       </Link>
                     </td>
                   </tr>
@@ -81,25 +89,7 @@ export default function OrdersPage() {
             </table>
           </div>
 
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4 text-sm text-frost/60">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="px-3 py-1.5 border border-frost/15 hover:border-pixel disabled:opacity-40 transition-colors"
-              >
-                ← Previous
-              </button>
-              <span className="font-mono text-xs">Page {page} of {totalPages}</span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="px-3 py-1.5 border border-frost/15 hover:border-pixel disabled:opacity-40 transition-colors"
-              >
-                Next →
-              </button>
-            </div>
-          )}
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </>
       )}
     </div>

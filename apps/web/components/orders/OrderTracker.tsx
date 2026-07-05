@@ -1,17 +1,18 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { useTranslations } from 'next-intl';
 import { Clock, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { getAccessToken } from '../../lib/api-client';
 import { CreditCounter } from '../ui/CreditCounter';
 
 type OrderStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
-const STATUS_CONFIG: Record<OrderStatus, { label: string; tone: 'gold' | 'neon' | 'mint' | 'pink'; Icon: typeof Clock }> = {
-  PENDING: { label: 'Pending', tone: 'gold', Icon: Clock },
-  PROCESSING: { label: 'Processing', tone: 'neon', Icon: Loader2 },
-  COMPLETED: { label: 'Completed', tone: 'mint', Icon: CheckCircle2 },
-  FAILED: { label: 'Failed', tone: 'pink', Icon: XCircle },
+const STATUS_CONFIG: Record<OrderStatus, { key: string; tone: 'gold' | 'neon' | 'mint' | 'pink'; Icon: typeof Clock }> = {
+  PENDING: { key: 'pending', tone: 'gold', Icon: Clock },
+  PROCESSING: { key: 'processing', tone: 'neon', Icon: Loader2 },
+  COMPLETED: { key: 'completed', tone: 'mint', Icon: CheckCircle2 },
+  FAILED: { key: 'failed', tone: 'pink', Icon: XCircle },
 };
 
 interface Props {
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function OrderTracker({ orderId, initialStatus, userId }: Props) {
+  const t = useTranslations('orders');
   const [status, setStatus] = useState<OrderStatus>(initialStatus);
   const statusRef = useRef(status);
 
@@ -59,13 +61,13 @@ export function OrderTracker({ orderId, initialStatus, userId }: Props) {
 
   return (
     <CreditCounter
-      label="Order status"
+      label={t('orderStatus')}
       tone={config.tone}
       live={isLive}
       value={
         <span className="inline-flex items-center gap-2">
           <config.Icon size={16} className={status === 'PROCESSING' ? 'animate-spin' : ''} />
-          {config.label}
+          {t(`status.${config.key}`)}
         </span>
       }
     />

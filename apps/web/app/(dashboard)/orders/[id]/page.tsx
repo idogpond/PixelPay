@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiFetch } from '../../../../lib/api-client';
 import { useAuthStore } from '../../../../stores/auth.store';
 import { OrderTracker } from '../../../../components/orders/OrderTracker';
@@ -30,6 +31,8 @@ interface Order {
 const TRACKABLE: OrderStatus[] = ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'];
 
 export default function OrderDetailPage() {
+  const t = useTranslations('orders');
+  const tc = useTranslations('common');
   const { id } = useParams<{ id: string }>();
   const user = useAuthStore((s) => s.user);
   const [order, setOrder] = useState<Order | null>(null);
@@ -43,7 +46,7 @@ export default function OrderDetailPage() {
   useEffect(() => { load(); }, [load]);
 
   const handleCancel = async () => {
-    if (!confirm('Cancel this order? Your credits will be released back to your wallet.')) return;
+    if (!confirm(t('cancelConfirm'))) return;
     setCancelling(true);
     try {
       await apiFetch(`/orders/${id}/cancel`, { method: 'POST' });
@@ -55,31 +58,31 @@ export default function OrderDetailPage() {
     }
   };
 
-  if (error) return <div className="max-w-3xl mx-auto px-4 py-10 text-pink">Error: {error}</div>;
-  if (!order) return <div className="max-w-3xl mx-auto px-4 py-10 text-frost/40">Loading…</div>;
+  if (error) return <div className="max-w-3xl mx-auto px-4 py-10 text-pink">{tc('error', { message: error })}</div>;
+  if (!order) return <div className="max-w-3xl mx-auto px-4 py-10 text-frost/40">{tc('loading')}</div>;
 
   const rows: Array<[string, React.ReactNode]> = [
-    ['Game', order.gameProduct.game.name],
-    ['Package', order.gameProduct.name],
-    ['Game UID', <span key="uid" className="font-mono">{order.gameUid}</span>],
-    ...(order.gameServer ? [['Server', order.gameServer] as [string, React.ReactNode]] : []),
-    ...(order.gameUsername ? [['Username', order.gameUsername] as [string, React.ReactNode]] : []),
-    ['Payment', order.paymentMethod === 'WALLET' ? 'PixelPay credits' : 'PromptPay'],
-    ['Placed', new Date(order.createdAt).toLocaleString('th-TH')],
+    [t('rows.game'), order.gameProduct.game.name],
+    [t('rows.package'), order.gameProduct.name],
+    [t('rows.gameUid'), <span key="uid" className="font-mono">{order.gameUid}</span>],
+    ...(order.gameServer ? [[t('rows.server'), order.gameServer] as [string, React.ReactNode]] : []),
+    ...(order.gameUsername ? [[t('rows.username'), order.gameUsername] as [string, React.ReactNode]] : []),
+    [t('rows.payment'), order.paymentMethod === 'WALLET' ? t('paymentWallet') : t('paymentPromptPay')],
+    [t('rows.placed'), new Date(order.createdAt).toLocaleString('th-TH')],
     ...(order.completedAt
-      ? [['Completed', new Date(order.completedAt).toLocaleString('th-TH')] as [string, React.ReactNode]]
+      ? [[t('rows.completed'), new Date(order.completedAt).toLocaleString('th-TH')] as [string, React.ReactNode]]
       : []),
   ];
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       <Link href="/orders" className="text-sm text-frost/50 hover:text-frost transition-colors">
-        ← All orders
+        {t('allOrders')}
       </Link>
 
       <div className="flex flex-wrap items-end justify-between gap-4 mt-3 mb-6">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-frost/40 mb-1">Order</p>
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-frost/40 mb-1">{t('orderLabel')}</p>
           <h1 className="font-display text-3xl text-frost">{order.orderNumber}</h1>
         </div>
         {TRACKABLE.includes(order.status) && user ? (
@@ -103,12 +106,12 @@ export default function OrderDetailPage() {
           <div className="text-sm text-frost/50">
             {Number(order.discountAmount) > 0 && (
               <p>
-                Discount: <span className="text-mint font-medium">−฿{Number(order.discountAmount).toLocaleString('th-TH')}</span>
+                {t('discount')} <span className="text-mint font-medium">−฿{Number(order.discountAmount).toLocaleString('th-TH')}</span>
               </p>
             )}
           </div>
           <CreditCounter
-            label="Total paid"
+            label={t('totalPaid')}
             value={`฿${Number(order.totalPrice).toLocaleString('th-TH', { minimumFractionDigits: 2 })}`}
             tone="neon"
           />
@@ -121,7 +124,7 @@ export default function OrderDetailPage() {
           disabled={cancelling}
           className="mt-5 px-4 py-2 border border-pink/40 text-pink text-sm hover:bg-pink/10 disabled:opacity-50 transition-colors"
         >
-          {cancelling ? 'Cancelling…' : 'Cancel order'}
+          {cancelling ? t('cancelling') : t('cancelOrder')}
         </button>
       )}
     </div>
