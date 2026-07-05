@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Users, CircleDollarSign, Hourglass, Copy, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { apiFetch } from '../../../lib/api-client';
 import { StatsCard } from '../../../components/admin/StatsCard';
 import { CreditCounter } from '../../../components/ui/CreditCounter';
+import { Pagination } from '../../../components/ui/Pagination';
 
 interface Dashboard {
   referralCode: string;
@@ -31,6 +33,8 @@ interface Paginated<T> {
 const LIMIT = 20;
 
 export default function AffiliatePage() {
+  const t = useTranslations('affiliate');
+  const tc = useTranslations('common');
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [commissions, setCommissions] = useState<Paginated<Commission> | null>(null);
   const [page, setPage] = useState(1);
@@ -59,66 +63,66 @@ export default function AffiliatePage() {
 
   const totalPages = commissions ? Math.max(1, Math.ceil(commissions.total / commissions.limit)) : 1;
 
-  if (error) return <div className="max-w-4xl mx-auto px-4 py-10 text-pink">Error: {error}</div>;
-  if (!dashboard) return <div className="max-w-4xl mx-auto px-4 py-10 text-frost/40">Loading…</div>;
+  if (error) return <div className="max-w-4xl mx-auto px-4 py-10 text-pink">{tc('error', { message: error })}</div>;
+  if (!dashboard) return <div className="max-w-4xl mx-auto px-4 py-10 text-frost/40">{tc('loading')}</div>;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <h1 className="font-display text-3xl text-frost mb-1">Affiliate program</h1>
+      <h1 className="font-display text-3xl text-frost mb-1">{t('title')}</h1>
       <p className="text-sm text-frost/50 mb-8">
-        Earn a commission every time someone you referred tops up.
+        {t('subtitle')}
         {dashboard.status === 'SUSPENDED' && (
-          <span className="text-pink font-medium"> Your affiliate account is currently suspended.</span>
+          <span className="text-pink font-medium">{' '}{t('suspendedNote')}</span>
         )}
       </p>
 
       <div className="pixel-cut bg-void-deep p-6 mb-8">
         <div className="flex flex-wrap items-end justify-between gap-6">
-          <CreditCounter label="Your referral code" value={dashboard.referralCode} tone="pixel" />
+          <CreditCounter label={t('referralCode')} value={dashboard.referralCode} tone="pixel" />
           <button
             onClick={copyLink}
             className="inline-flex items-center gap-2 grad-brand text-white px-4 py-2 pixel-cut text-sm font-bold hover:brightness-110 transition-colors"
           >
             {copied ? <Check size={16} /> : <Copy size={16} />}
-            {copied ? 'Copied!' : 'Copy invite link'}
+            {copied ? t('copied') : t('copyLink')}
           </button>
         </div>
         <p className="text-frost/40 text-xs mt-3 font-mono break-all">{referralLink}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-        <StatsCard title="Referrals" value={dashboard.totalReferrals.toLocaleString()} icon={Users} />
+        <StatsCard title={t('referrals')} value={dashboard.totalReferrals.toLocaleString()} icon={Users} />
         <StatsCard
-          title="Total earned"
+          title={t('totalEarned')}
           value={`฿${dashboard.totalEarnings.toLocaleString('th-TH')}`}
           icon={CircleDollarSign}
         />
         <StatsCard
-          title="Pending payout"
+          title={t('pendingPayout')}
           value={`฿${dashboard.pendingEarnings.toLocaleString('th-TH')}`}
           icon={Hourglass}
         />
       </div>
 
-      <h2 className="font-display text-xl text-frost mb-4">Commissions</h2>
+      <h2 className="font-display text-xl text-frost mb-4">{t('commissions')}</h2>
       {commissions ? (
         <>
           <div className="pixel-cut bg-panel border border-frost/10 overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-void-deep">
                 <tr>
-                  <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">Date</th>
-                  <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">Order</th>
-                  <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">Order total</th>
-                  <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">Commission</th>
-                  <th className="text-center px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">Status</th>
+                  <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">{t('table.date')}</th>
+                  <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">{t('table.order')}</th>
+                  <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">{t('table.orderTotal')}</th>
+                  <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">{t('table.commission')}</th>
+                  <th className="text-center px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-frost/60">{t('table.status')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-frost/5">
                 {commissions.items.length === 0 && (
                   <tr>
                     <td colSpan={5} className="text-center py-12 text-frost/40">
-                      No commissions yet — share your invite link to start earning.
+                      {t('noCommissions')}
                     </td>
                   </tr>
                 )}
@@ -140,7 +144,7 @@ export default function AffiliatePage() {
                           c.status === 'PAID' ? 'bg-mint/15 text-mint' : 'bg-gold/15 text-neon'
                         }`}
                       >
-                        {c.status === 'PAID' ? 'Paid' : 'Pending'}
+                        {c.status === 'PAID' ? t('paid') : t('pending')}
                       </span>
                     </td>
                   </tr>
@@ -149,28 +153,10 @@ export default function AffiliatePage() {
             </table>
           </div>
 
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4 text-sm text-frost/60">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="px-3 py-1.5 border border-frost/15 hover:border-pixel disabled:opacity-40 transition-colors"
-              >
-                ← Previous
-              </button>
-              <span className="font-mono text-xs">Page {page} of {totalPages}</span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="px-3 py-1.5 border border-frost/15 hover:border-pixel disabled:opacity-40 transition-colors"
-              >
-                Next →
-              </button>
-            </div>
-          )}
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </>
       ) : (
-        <div className="text-frost/40 py-8">Loading…</div>
+        <div className="text-frost/40 py-8">{tc('loading')}</div>
       )}
     </div>
   );
