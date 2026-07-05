@@ -1,7 +1,9 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiFetch } from '../../../lib/api-client';
 import { DataTable } from '../../../components/admin/DataTable';
+import { Pagination } from '../../../components/ui/Pagination';
 
 type Role = 'USER' | 'ADMIN' | 'RESELLER';
 
@@ -27,6 +29,8 @@ const ROLES: Role[] = ['USER', 'ADMIN', 'RESELLER'];
 const LIMIT = 20;
 
 export default function AdminUsersPage() {
+  const t = useTranslations('admin.users');
+  const tc = useTranslations('common');
   const [data, setData] = useState<Paginated<AdminUser> | null>(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -63,7 +67,7 @@ export default function AdminUsersPage() {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between gap-4 mb-6">
-        <h1 className="font-display text-2xl text-frost">Users</h1>
+        <h1 className="font-display text-2xl text-frost">{t('title')}</h1>
         <form
           onSubmit={(e) => { e.preventDefault(); setQuery(search.trim()); setPage(1); }}
           className="flex gap-2"
@@ -71,30 +75,30 @@ export default function AdminUsersPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search email or name…"
+            placeholder={t('searchPlaceholder')}
             className="border border-frost/15 bg-void px-3 py-2 text-sm text-frost focus:outline-none focus:ring-2 focus:ring-pixel w-64"
           />
           <button
             type="submit"
             className="grad-brand text-white px-4 py-2 pixel-cut text-sm font-bold hover:brightness-110 transition-colors"
           >
-            Search
+            {tc('search')}
           </button>
         </form>
       </div>
 
-      {error && <div className="text-pink mb-4">Error: {error}</div>}
-      {!data && !error && <div className="text-frost/40 py-8">Loading…</div>}
+      {error && <div className="text-pink mb-4">{tc('error', { message: error })}</div>}
+      {!data && !error && <div className="text-frost/40 py-8">{tc('loading')}</div>}
 
       {data && (
         <>
           <DataTable<AdminUser>
-            emptyMessage="No users found."
+            emptyMessage={t('noUsers')}
             data={data.items}
             columns={[
               {
                 key: 'displayName',
-                header: 'User',
+                header: t('user'),
                 render: (_, row) => (
                   <div>
                     <p className="text-frost font-medium">{row.displayName}</p>
@@ -104,7 +108,7 @@ export default function AdminUsersPage() {
               },
               {
                 key: 'createdAt',
-                header: 'Joined',
+                header: t('joined'),
                 render: (_, row) => (
                   <span className="text-frost/50 whitespace-nowrap">
                     {new Date(row.createdAt).toLocaleDateString('th-TH')}
@@ -113,22 +117,22 @@ export default function AdminUsersPage() {
               },
               {
                 key: 'isVerified',
-                header: 'Verified',
+                header: t('verified'),
                 render: (_, row) => (
                   <span className={row.isVerified ? 'text-mint' : 'text-frost/30'}>
-                    {row.isVerified ? 'Yes' : 'No'}
+                    {row.isVerified ? tc('yes') : tc('no')}
                   </span>
                 ),
               },
               {
                 key: 'role',
-                header: 'Role',
+                header: t('role'),
                 render: (_, row) => (
                   <select
                     value={row.role}
                     onChange={(e) => {
                       const role = e.target.value as Role;
-                      if (role !== row.role && confirm(`Change ${row.email} to ${role}?`)) {
+                      if (role !== row.role && confirm(t('roleConfirm', { email: row.email, role }))) {
                         update(row, { role });
                       } else {
                         e.target.value = row.role;
@@ -143,51 +147,35 @@ export default function AdminUsersPage() {
               },
               {
                 key: 'isActive',
-                header: 'Status',
+                header: t('status'),
                 render: (_, row) => (
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${row.isActive ? 'bg-mint/15 text-mint' : 'bg-pink/15 text-pink'}`}>
-                    {row.isActive ? 'Active' : 'Suspended'}
+                    {row.isActive ? tc('active') : t('suspended')}
                   </span>
                 ),
               },
               {
                 key: 'id',
-                header: 'Actions',
+                header: t('actions'),
                 render: (_, row) => (
                   <button
                     onClick={() => {
-                      const verb = row.isActive ? 'Suspend' : 'Reactivate';
-                      if (confirm(`${verb} ${row.email}?`)) update(row, { isActive: !row.isActive });
+                      const message = row.isActive
+                        ? t('suspendConfirm', { email: row.email })
+                        : t('reactivateConfirm', { email: row.email });
+                      if (confirm(message)) update(row, { isActive: !row.isActive });
                     }}
                     disabled={busyId === row.id}
                     className={`text-xs font-semibold hover:underline disabled:opacity-50 ${row.isActive ? 'text-pink' : 'text-mint'}`}
                   >
-                    {row.isActive ? 'Suspend' : 'Reactivate'}
+                    {row.isActive ? t('suspend') : t('reactivate')}
                   </button>
                 ),
               },
             ]}
           />
 
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4 text-sm text-frost/60">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="px-3 py-1.5 border border-frost/15 hover:border-pixel disabled:opacity-40 transition-colors"
-              >
-                ← Previous
-              </button>
-              <span className="font-mono text-xs">Page {page} of {totalPages} · {data.total} users</span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="px-3 py-1.5 border border-frost/15 hover:border-pixel disabled:opacity-40 transition-colors"
-              >
-                Next →
-              </button>
-            </div>
-          )}
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} suffix={t('countSuffix', { count: data.total })} />
         </>
       )}
     </div>

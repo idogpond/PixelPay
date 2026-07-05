@@ -1,8 +1,10 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiFetch } from '../../../lib/api-client';
 import { DataTable } from '../../../components/admin/DataTable';
 import { OrderStatusBadge, OrderStatus } from '../../../components/orders/OrderStatusBadge';
+import { Pagination } from '../../../components/ui/Pagination';
 
 interface AdminOrder {
   id: string;
@@ -27,6 +29,9 @@ const OVERRIDE_STATUSES: OrderStatus[] = ['COMPLETED', 'FAILED', 'REFUNDED'];
 const LIMIT = 20;
 
 export default function AdminOrdersPage() {
+  const t = useTranslations('admin.orders');
+  const ts = useTranslations('orders.status');
+  const tc = useTranslations('common');
   const [data, setData] = useState<Paginated<AdminOrder> | null>(null);
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
@@ -59,7 +64,7 @@ export default function AdminOrdersPage() {
 
   const overrideStatus = async (order: AdminOrder, status: string) => {
     if (!status) return;
-    if (!confirm(`Set ${order.orderNumber} to ${status}?`)) return;
+    if (!confirm(t('overrideConfirm', { order: order.orderNumber, status }))) return;
     setBusyId(order.id);
     try {
       await apiFetch(`/admin/orders/${order.id}/status`, {
@@ -79,34 +84,34 @@ export default function AdminOrdersPage() {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl text-frost">Orders</h1>
+        <h1 className="font-display text-2xl text-frost">{t('title')}</h1>
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
           className="border border-frost/15 bg-void px-3 py-2 text-sm text-frost focus:outline-none focus:ring-2 focus:ring-pixel"
         >
-          <option value="">All statuses</option>
-          {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+          <option value="">{t('allStatuses')}</option>
+          {STATUSES.map((s) => <option key={s} value={s}>{ts(s.toLowerCase())}</option>)}
         </select>
       </div>
 
-      {error && <div className="text-pink mb-4">Error: {error}</div>}
-      {!data && !error && <div className="text-frost/40 py-8">Loading…</div>}
+      {error && <div className="text-pink mb-4">{tc('error', { message: error })}</div>}
+      {!data && !error && <div className="text-frost/40 py-8">{tc('loading')}</div>}
 
       {data && (
         <>
           <DataTable<AdminOrder>
-            emptyMessage="No orders match this filter."
+            emptyMessage={t('noOrdersFilter')}
             data={data.items}
             columns={[
               {
                 key: 'orderNumber',
-                header: 'Order',
+                header: t('order'),
                 render: (_, row) => <span className="font-mono text-frost">{row.orderNumber}</span>,
               },
               {
                 key: 'user',
-                header: 'Customer',
+                header: t('customer'),
                 render: (_, row) => (
                   <div>
                     <p className="text-frost">{row.user.displayName}</p>
@@ -116,7 +121,7 @@ export default function AdminOrdersPage() {
               },
               {
                 key: 'gameProduct',
-                header: 'Product',
+                header: t('product'),
                 render: (_, row) => (
                   <div>
                     <p>{row.gameProduct.name}</p>
@@ -126,26 +131,26 @@ export default function AdminOrdersPage() {
               },
               {
                 key: 'totalPrice',
-                header: 'Total',
+                header: t('total'),
                 render: (_, row) => (
                   <span className="font-mono tabular-nums">฿{Number(row.totalPrice).toLocaleString('th-TH')}</span>
                 ),
               },
               {
                 key: 'createdAt',
-                header: 'Placed',
+                header: t('placed'),
                 render: (_, row) => (
                   <span className="text-frost/50 whitespace-nowrap">{new Date(row.createdAt).toLocaleString('th-TH')}</span>
                 ),
               },
               {
                 key: 'status',
-                header: 'Status',
+                header: t('status'),
                 render: (_, row) => <OrderStatusBadge status={row.status} />,
               },
               {
                 key: 'id',
-                header: 'Actions',
+                header: t('actions'),
                 render: (_, row) => (
                   <div className="flex items-center gap-2">
                     {row.status === 'FAILED' && (
@@ -154,7 +159,7 @@ export default function AdminOrdersPage() {
                         disabled={busyId === row.id}
                         className="text-neon hover:underline text-xs font-semibold disabled:opacity-50"
                       >
-                        Retry
+                        {t('retry')}
                       </button>
                     )}
                     <select
@@ -163,8 +168,8 @@ export default function AdminOrdersPage() {
                       disabled={busyId === row.id}
                       className="border border-frost/15 bg-void px-2 py-1 text-xs text-frost/60 focus:outline-none disabled:opacity-50"
                     >
-                      <option value="">Override…</option>
-                      {OVERRIDE_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                      <option value="">{t('override')}</option>
+                      {OVERRIDE_STATUSES.map((s) => <option key={s} value={s}>{ts(s.toLowerCase())}</option>)}
                     </select>
                   </div>
                 ),
@@ -172,25 +177,7 @@ export default function AdminOrdersPage() {
             ]}
           />
 
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4 text-sm text-frost/60">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="px-3 py-1.5 border border-frost/15 hover:border-pixel disabled:opacity-40 transition-colors"
-              >
-                ← Previous
-              </button>
-              <span className="font-mono text-xs">Page {page} of {totalPages} · {data.total} orders</span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="px-3 py-1.5 border border-frost/15 hover:border-pixel disabled:opacity-40 transition-colors"
-              >
-                Next →
-              </button>
-            </div>
-          )}
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} suffix={t('countSuffix', { count: data.total })} />
         </>
       )}
     </div>
