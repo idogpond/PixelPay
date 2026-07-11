@@ -154,6 +154,20 @@ model WalletTransaction {
   @@map("wallet_transactions")
 }
 
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(50)
+  slug      String   @unique @db.VarChar(50)
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  games Game[]
+
+  @@map("categories")
+}
+
 model Game {
   id          String   @id @default(uuid()) @db.Uuid
   name        String   @db.VarChar(100)
@@ -161,17 +175,19 @@ model Game {
   logoUrl     String?  @map("logo_url")
   bannerUrl   String?  @map("banner_url")
   description String?
-  category    String?  @db.VarChar(50)
+  categoryId  String?  @map("category_id") @db.Uuid
   isActive    Boolean  @default(true) @map("is_active")
   sortOrder   Int      @default(0) @map("sort_order")
   metadata    Json?    @default("{}")
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz()
 
+  category      Category?     @relation(fields: [categoryId], references: [id])
   products      GameProduct[]
   coupons       Coupon[]
   cashbackRules CashbackRule[]
 
+  @@index([categoryId], name: "idx_games_category_id")
   @@map("games")
 }
 

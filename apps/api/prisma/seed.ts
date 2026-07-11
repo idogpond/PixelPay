@@ -13,10 +13,23 @@ interface SeedProduct {
   priceSell: number;
 }
 
+interface SeedCategory {
+  name: string;
+  slug: string;
+  sortOrder: number;
+}
+
+const CATEGORIES: SeedCategory[] = [
+  { name: 'FPS', slug: 'fps', sortOrder: 1 },
+  { name: 'MOBA', slug: 'moba', sortOrder: 2 },
+  { name: 'Battle Royale', slug: 'battle-royale', sortOrder: 3 },
+  { name: 'RPG', slug: 'rpg', sortOrder: 4 },
+];
+
 interface SeedGame {
   name: string;
   slug: string;
-  category: string;
+  categorySlug: string;
   description: string;
   logoUrl: string;
   sortOrder: number;
@@ -28,7 +41,7 @@ const GAMES: SeedGame[] = [
   {
     name: 'Valorant',
     slug: 'valorant',
-    category: 'FPS',
+    categorySlug: 'fps',
     description: 'Valorant Points delivered to your Riot ID in 3–5 minutes.',
     logoUrl: `${CDN}/valorant.jpg`,
     sortOrder: 1,
@@ -46,7 +59,7 @@ const GAMES: SeedGame[] = [
   {
     name: 'Arena of Valor',
     slug: 'rov',
-    category: 'MOBA',
+    categorySlug: 'moba',
     description: 'RoV coupons credited to your account instantly.',
     logoUrl: `${CDN}/rov.jpg`,
     sortOrder: 2,
@@ -65,7 +78,7 @@ const GAMES: SeedGame[] = [
   {
     name: 'Free Fire',
     slug: 'freefire',
-    category: 'Battle Royale',
+    categorySlug: 'battle-royale',
     description: 'Diamonds and memberships for Free Fire, delivered instantly.',
     logoUrl: `${CDN}/freefire.jpg`,
     sortOrder: 3,
@@ -88,7 +101,7 @@ const GAMES: SeedGame[] = [
   {
     name: 'Mobile Legends: Bang Bang',
     slug: 'mobile-legends',
-    category: 'MOBA',
+    categorySlug: 'moba',
     description: 'MLBB diamonds credited to your account instantly.',
     logoUrl: `${CDN}/Mobilelegends.jpg`,
     sortOrder: 4,
@@ -111,7 +124,7 @@ const GAMES: SeedGame[] = [
   {
     name: 'PUBG Mobile',
     slug: 'pubg-mobile',
-    category: 'Battle Royale',
+    categorySlug: 'battle-royale',
     description: 'Unknown Cash (UC) for PUBG Mobile Global.',
     logoUrl: `${CDN}/pubg_m_global.jpg`,
     sortOrder: 5,
@@ -127,7 +140,7 @@ const GAMES: SeedGame[] = [
   {
     name: 'Genshin Impact',
     slug: 'genshin-impact',
-    category: 'RPG',
+    categorySlug: 'rpg',
     description: 'Genesis Crystals and Welkin Moon for Genshin Impact.',
     logoUrl: `${CDN}/genshin.jpg`,
     sortOrder: 6,
@@ -145,7 +158,7 @@ const GAMES: SeedGame[] = [
   {
     name: 'Honkai: Star Rail',
     slug: 'honkai-star-rail',
-    category: 'RPG',
+    categorySlug: 'rpg',
     description: 'Oneiric Shards and Express Supply Pass for Honkai: Star Rail.',
     logoUrl: `${CDN}/honkaistarrail.jpg`,
     sortOrder: 7,
@@ -163,7 +176,7 @@ const GAMES: SeedGame[] = [
   {
     name: 'Wuthering Waves',
     slug: 'wuthering-waves',
-    category: 'RPG',
+    categorySlug: 'rpg',
     description: 'Lunite and Lunite Subscription for Wuthering Waves.',
     logoUrl: `${CDN}/wuthering-wave.jpg`,
     sortOrder: 8,
@@ -181,7 +194,7 @@ const GAMES: SeedGame[] = [
   {
     name: 'Honor of Kings',
     slug: 'honor-of-kings',
-    category: 'MOBA',
+    categorySlug: 'moba',
     description: 'Tokens for Honor of Kings (Global), credited instantly.',
     logoUrl: `${CDN}/honorofkings.jpg`,
     sortOrder: 9,
@@ -197,7 +210,7 @@ const GAMES: SeedGame[] = [
   {
     name: 'Zenless Zone Zero',
     slug: 'zenless-zone-zero',
-    category: 'RPG',
+    categorySlug: 'rpg',
     description: 'Monochrome and Inter-Knot Membership for Zenless Zone Zero.',
     logoUrl: `${CDN}/zzz.jpg`,
     sortOrder: 10,
@@ -215,13 +228,25 @@ const GAMES: SeedGame[] = [
 ];
 
 async function main() {
+  const categoryIdBySlug = new Map<string, string>();
+  for (const cat of CATEGORIES) {
+    const dbCategory = await prisma.category.upsert({
+      where: { slug: cat.slug },
+      create: cat,
+      update: cat,
+    });
+    categoryIdBySlug.set(cat.slug, dbCategory.id);
+    console.log(`✓ category ${dbCategory.name}`);
+  }
+
   for (const game of GAMES) {
-    const { products, requiresServer, ...gameData } = game;
+    const { products, requiresServer, categorySlug, ...gameData } = game;
+    const categoryId = categoryIdBySlug.get(categorySlug);
 
     const dbGame = await prisma.game.upsert({
       where: { slug: game.slug },
-      create: { ...gameData, isActive: true },
-      update: gameData,
+      create: { ...gameData, categoryId, isActive: true },
+      update: { ...gameData, categoryId },
     });
 
     for (const [index, product] of products.entries()) {
