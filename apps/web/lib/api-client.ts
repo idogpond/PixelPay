@@ -43,7 +43,8 @@ export async function apiFetch<T>(
 
   if (res.status === 401 && typeof window !== 'undefined' && path !== '/auth/login') {
     document.cookie = 'pixelpay-token=; path=/; max-age=0';
-    window.location.href = '/login';
+    const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href = `/login?returnTo=${returnTo}`;
     throw new Error('Session expired');
   }
 
