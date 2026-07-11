@@ -10,6 +10,8 @@ interface Game {
   name: string;
   slug: string;
   category: string | null;
+  description: string | null;
+  descriptionTh: string | null;
   isActive: boolean;
   sortOrder: number;
   logoUrl: string | null;
@@ -116,7 +118,13 @@ export default function AdminGamesPage() {
       {modal?.mode === 'edit' && (
         <GameFormModal
           title={t('editTitle', { name: modal.game.name })}
-          initial={{ ...modal.game, category: modal.game.category ?? undefined, logoUrl: modal.game.logoUrl ?? undefined }}
+          initial={{
+            ...modal.game,
+            category: modal.game.category ?? undefined,
+            logoUrl: modal.game.logoUrl ?? undefined,
+            description: modal.game.description ?? undefined,
+            descriptionTh: modal.game.descriptionTh ?? undefined,
+          }}
           onSubmit={handleEdit}
           onClose={() => setModal(null)}
         />

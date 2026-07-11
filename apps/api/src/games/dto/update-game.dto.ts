@@ -1,4 +1,4 @@
-import { IsBoolean, IsInt, IsOptional, IsString, IsUrl, Matches, MaxLength, Min } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsString, IsUrl, IsUUID, Matches, MaxLength, Min } from 'class-validator';
 
 export class UpdateGameDto {
   @IsOptional()
@@ -27,8 +27,12 @@ export class UpdateGameDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(50)
-  category?: string;
+  @MaxLength(500)
+  descriptionTh?: string;
+
+  @IsOptional()
+  @IsUUID()
+  categoryId?: string;
 
   @IsOptional()
   @IsBoolean()

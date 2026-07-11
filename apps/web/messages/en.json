@@ -232,6 +232,8 @@
         "slugHint": "(lowercase-hyphens)",
         "slugPattern": "Lowercase, numbers and hyphens only",
         "category": "Category",
+        "description": "Description (English)",
+        "descriptionTh": "Description (Thai)",
         "logoUrl": "Logo URL",
         "sortOrder": "Sort order",
         "active": "Active"

@@ -22,7 +22,7 @@ export class GamesService {
   async findBySlug(slug: string) {
     const game = await this.prisma.game.findUnique({
       where: { slug },
-      select: { id: true, name: true, slug: true, logoUrl: true, bannerUrl: true, description: true, category: true },
+      select: { id: true, name: true, slug: true, logoUrl: true, bannerUrl: true, description: true, descriptionTh: true, category: true },
     });
     if (!game) throw new NotFoundException('Game not found');
     return game;

@@ -9,7 +9,7 @@ interface Game {
   name: string;
   slug: string;
   logoUrl: string | null;
-  category: string | null;
+  category: { name: string } | null;
 }
 
 // The logo's own tagline — เติมเกมไว ปลอดภัย คุ้มค่า — is the value prop,
@@ -65,7 +65,7 @@ export default async function HomePage() {
       <section className="max-w-6xl mx-auto px-4 py-10">
         <h2 className="font-display text-2xl text-frost mb-6">{t('chooseGame')}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {games.map((g) => <GameCard key={g.id} {...g} />)}
+          {games.map((g) => <GameCard key={g.id} {...g} category={g.category?.name ?? null} />)}
         </div>
         {games.length === 0 && (
           <div className="text-center py-20 text-frost/40 font-body">

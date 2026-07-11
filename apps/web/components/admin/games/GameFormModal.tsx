@@ -11,6 +11,7 @@ export interface GameFormData {
   category?: string;
   logoUrl?: string;
   description?: string;
+  descriptionTh?: string;
   isActive: boolean;
   sortOrder: number;
 }
@@ -34,6 +35,7 @@ export function GameFormModal({ initial, onSubmit, onClose, title }: Props) {
           category: z.string().max(50).optional(),
           logoUrl: z.string().url().optional().or(z.literal('')),
           description: z.string().max(500).optional(),
+          descriptionTh: z.string().max(500).optional(),
           isActive: z.boolean(),
           sortOrder: z.coerce.number().int().min(0),
         }),
@@ -80,6 +82,16 @@ export function GameFormModal({ initial, onSubmit, onClose, title }: Props) {
           <div>
             <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">{t('category')}</label>
             <input {...register('category')} className="w-full border border-frost/15 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" placeholder="MOBA, RPG, FPS…" />
+          </div>
+          <div>
+            <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">{t('description')}</label>
+            <textarea rows={2} {...register('description')} className="w-full border border-frost/15 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" />
+            {errors.description && <p className="text-pink text-xs mt-1">{errors.description.message}</p>}
+          </div>
+          <div>
+            <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">{t('descriptionTh')}</label>
+            <textarea rows={2} {...register('descriptionTh')} className="w-full border border-frost/15 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" />
+            {errors.descriptionTh && <p className="text-pink text-xs mt-1">{errors.descriptionTh.message}</p>}
           </div>
           <div>
             <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">{t('logoUrl')}</label>

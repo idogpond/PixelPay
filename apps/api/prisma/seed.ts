@@ -31,6 +31,7 @@ interface SeedGame {
   slug: string;
   categorySlug: string;
   description: string;
+  descriptionTh: string;
   logoUrl: string;
   sortOrder: number;
   requiresServer?: boolean;
@@ -43,6 +44,7 @@ const GAMES: SeedGame[] = [
     slug: 'valorant',
     categorySlug: 'fps',
     description: 'Valorant Points delivered to your Riot ID in 3–5 minutes.',
+    descriptionTh: 'รับ Valorant Points เข้า Riot ID ของคุณภายใน 3–5 นาที',
     logoUrl: `${CDN}/valorant.jpg`,
     sortOrder: 1,
     products: [
@@ -61,6 +63,7 @@ const GAMES: SeedGame[] = [
     slug: 'rov',
     categorySlug: 'moba',
     description: 'RoV coupons credited to your account instantly.',
+    descriptionTh: 'คูปอง RoV เข้าบัญชีของคุณทันที',
     logoUrl: `${CDN}/rov.jpg`,
     sortOrder: 2,
     products: [
@@ -80,6 +83,7 @@ const GAMES: SeedGame[] = [
     slug: 'freefire',
     categorySlug: 'battle-royale',
     description: 'Diamonds and memberships for Free Fire, delivered instantly.',
+    descriptionTh: 'เพชรและแพ็กเกจสมาชิก Free Fire ส่งทันที',
     logoUrl: `${CDN}/freefire.jpg`,
     sortOrder: 3,
     products: [
@@ -103,6 +107,7 @@ const GAMES: SeedGame[] = [
     slug: 'mobile-legends',
     categorySlug: 'moba',
     description: 'MLBB diamonds credited to your account instantly.',
+    descriptionTh: 'เพชร MLBB เข้าบัญชีของคุณทันที',
     logoUrl: `${CDN}/Mobilelegends.jpg`,
     sortOrder: 4,
     products: [
@@ -126,6 +131,7 @@ const GAMES: SeedGame[] = [
     slug: 'pubg-mobile',
     categorySlug: 'battle-royale',
     description: 'Unknown Cash (UC) for PUBG Mobile Global.',
+    descriptionTh: 'Unknown Cash (UC) สำหรับ PUBG Mobile Global',
     logoUrl: `${CDN}/pubg_m_global.jpg`,
     sortOrder: 5,
     products: [
@@ -142,6 +148,7 @@ const GAMES: SeedGame[] = [
     slug: 'genshin-impact',
     categorySlug: 'rpg',
     description: 'Genesis Crystals and Welkin Moon for Genshin Impact.',
+    descriptionTh: 'Genesis Crystals และ Welkin Moon สำหรับ Genshin Impact',
     logoUrl: `${CDN}/genshin.jpg`,
     sortOrder: 6,
     requiresServer: true,
@@ -160,6 +167,7 @@ const GAMES: SeedGame[] = [
     slug: 'honkai-star-rail',
     categorySlug: 'rpg',
     description: 'Oneiric Shards and Express Supply Pass for Honkai: Star Rail.',
+    descriptionTh: 'Oneiric Shards และ Express Supply Pass สำหรับ Honkai: Star Rail',
     logoUrl: `${CDN}/honkaistarrail.jpg`,
     sortOrder: 7,
     requiresServer: true,
@@ -178,6 +186,7 @@ const GAMES: SeedGame[] = [
     slug: 'wuthering-waves',
     categorySlug: 'rpg',
     description: 'Lunite and Lunite Subscription for Wuthering Waves.',
+    descriptionTh: 'Lunite และแพ็กเกจรายเดือน Lunite สำหรับ Wuthering Waves',
     logoUrl: `${CDN}/wuthering-wave.jpg`,
     sortOrder: 8,
     requiresServer: true,
@@ -196,6 +205,7 @@ const GAMES: SeedGame[] = [
     slug: 'honor-of-kings',
     categorySlug: 'moba',
     description: 'Tokens for Honor of Kings (Global), credited instantly.',
+    descriptionTh: 'โทเคนสำหรับ Honor of Kings (Global) เข้าบัญชีทันที',
     logoUrl: `${CDN}/honorofkings.jpg`,
     sortOrder: 9,
     products: [
@@ -212,6 +222,7 @@ const GAMES: SeedGame[] = [
     slug: 'zenless-zone-zero',
     categorySlug: 'rpg',
     description: 'Monochrome and Inter-Knot Membership for Zenless Zone Zero.',
+    descriptionTh: 'Monochrome และ Inter-Knot Membership สำหรับ Zenless Zone Zero',
     logoUrl: `${CDN}/zzz.jpg`,
     sortOrder: 10,
     requiresServer: true,

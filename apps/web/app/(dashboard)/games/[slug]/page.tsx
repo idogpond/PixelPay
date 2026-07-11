@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
 import { apiFetch } from '../../../../lib/api-client';
 import { ProductSelector, Product } from '../../../../components/games/ProductSelector';
 
@@ -10,16 +11,20 @@ interface Game {
   logoUrl: string | null;
   bannerUrl: string | null;
   description: string | null;
-  category: string | null;
+  descriptionTh: string | null;
+  category: { name: string } | null;
 }
 
 export default async function GameDetailPage({ params }: { params: { slug: string } }) {
-  const [game, products] = await Promise.all([
+  const [locale, game, products] = await Promise.all([
+    getLocale(),
     apiFetch<Game>(`/games/${params.slug}`).catch(() => null),
     apiFetch<Product[]>(`/games/${params.slug}/products`).catch(() => [] as Product[]),
   ]);
 
   if (!game) notFound();
+
+  const description = (locale === 'th' ? game.descriptionTh : null) ?? game.description;
 
   return (
     <div>
@@ -33,12 +38,12 @@ export default async function GameDetailPage({ params }: { params: { slug: strin
           <div>
             {game.category && (
               <p className="font-mono text-xs uppercase tracking-[0.3em] text-neon mb-1">
-                {game.category}
+                {game.category.name}
               </p>
             )}
             <h1 className="font-display text-4xl text-pixel-bright">{game.name}</h1>
-            {game.description && (
-              <p className="text-frost/60 mt-2 max-w-xl text-sm">{game.description}</p>
+            {description && (
+              <p className="text-frost/60 mt-2 max-w-xl text-sm">{description}</p>
             )}
           </div>
         </div>

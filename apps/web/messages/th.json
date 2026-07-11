@@ -232,6 +232,8 @@
         "slugHint": "(ตัวพิมพ์เล็ก-ขีดกลาง)",
         "slugPattern": "ตัวพิมพ์เล็ก ตัวเลข และขีดกลางเท่านั้น",
         "category": "หมวดหมู่",
+        "description": "คำอธิบาย (อังกฤษ)",
+        "descriptionTh": "คำอธิบาย (ไทย)",
         "logoUrl": "URL โลโก้",
         "sortOrder": "ลำดับ",
         "active": "ใช้งาน"
