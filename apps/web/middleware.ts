@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PUBLIC_PATHS = ['/login', '/register', '/forgot-password'];
+const PROTECTED_PATHS = ['/wallet', '/orders', '/profile', '/affiliate'];
+const AUTH_PATHS = ['/login', '/register', '/forgot-password'];
 const ADMIN_PATHS = ['/admin'];
 
 // UX-level check only — the API's RolesGuard is the real enforcement.
@@ -17,14 +18,17 @@ export function middleware(req: NextRequest) {
   const token = req.cookies.get('pixelpay-token')?.value;
   const { pathname } = req.nextUrl;
 
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  const isAuthPage = AUTH_PATHS.some((p) => pathname.startsWith(p));
   const isAdmin = ADMIN_PATHS.some((p) => pathname.startsWith(p));
+  const isProtected = isAdmin || PROTECTED_PATHS.some((p) => pathname.startsWith(p));
 
-  if (!token && !isPublic) {
-    return NextResponse.redirect(new URL('/login', req.url));
+  if (!token && isProtected) {
+    const url = new URL('/login', req.url);
+    url.searchParams.set('returnTo', pathname);
+    return NextResponse.redirect(url);
   }
 
-  if (token && isPublic) {
+  if (token && isAuthPage) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
