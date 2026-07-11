@@ -42,7 +42,12 @@ function LoginForm() {
       document.cookie = `pixelpay-token=${encodeURIComponent(res.accessToken)}; path=/; samesite=strict`;
       document.cookie = `pixelpay-refresh=${encodeURIComponent(res.refreshToken)}; path=/; samesite=strict`;
       const returnTo = searchParams.get('returnTo');
-      router.push(returnTo && returnTo.startsWith('/') ? returnTo : '/');
+      // A same-origin path always starts with a single '/' — reject
+      // protocol-relative ('//evil.com') and backslash-prefixed ('/\evil.com')
+      // values, which browsers resolve to an external host despite passing
+      // a naive startsWith('/') check.
+      const isSafeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') && !returnTo.startsWith('/\\');
+      router.push(isSafeReturnTo ? returnTo : '/');
     } catch (e: any) {
       setError('root', { message: e.message });
     }
