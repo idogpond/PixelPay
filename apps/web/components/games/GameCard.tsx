@@ -2,11 +2,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Gamepad2 } from 'lucide-react';
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface Props {
   name: string;
   slug: string;
   logoUrl: string | null;
-  category: string | null;
+  category: Category | null;
 }
 
 export function GameCard({ name, slug, logoUrl, category }: Props) {
@@ -26,7 +32,7 @@ export function GameCard({ name, slug, logoUrl, category }: Props) {
       </div>
       <h3 className="font-body font-bold text-frost truncate">{name}</h3>
       {category && (
-        <p className="font-mono text-[10px] uppercase tracking-wider text-frost/40 mt-1">{category}</p>
+        <p className="font-mono text-[10px] uppercase tracking-wider text-frost/40 mt-1">{category.name}</p>
       )}
     </Link>
   );
