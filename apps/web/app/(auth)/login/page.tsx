@@ -16,6 +16,7 @@ type FormData = { email: string; password: string };
 
 export default function LoginPage() {
   const t = useTranslations('auth');
+  const tc = useTranslations('common');
   const router = useRouter();
   const setUser = useAuthStore((s) => s.setUser);
   const schema = useMemo(
@@ -49,7 +50,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-void-deep px-4">
       <div className="w-full max-w-md">
         <Link href="/" className="block mx-auto w-56 mb-2">
-          <Image src="/logo.png" alt="PixelPay — เติมเกมไว ปลอดภัย คุ้มค่า" width={448} height={340} priority className="mix-blend-screen" />
+          <Image src="/logo.png" alt={`PixelPay — ${tc('tagline')}`} width={448} height={340} priority className="mix-blend-screen" />
         </Link>
         <div className="flex justify-center items-center gap-3 mb-4">
           <ThemeToggle />

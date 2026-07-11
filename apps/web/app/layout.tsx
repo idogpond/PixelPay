@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Chakra_Petch, Prompt, JetBrains_Mono } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
+import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import './globals.css';
 import { AuthProvider } from '../components/AuthProvider';
 
@@ -28,10 +28,13 @@ const counter = JetBrains_Mono({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: 'PixelPay — เติมเกมไว ปลอดภัย คุ้มค่า',
-  description: 'Game top-ups over PromptPay — fast, safe, great value.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('meta');
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
 
 // Runs before hydration so the page never flashes the wrong theme.
 const THEME_INIT_SCRIPT = `

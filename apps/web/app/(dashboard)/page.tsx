@@ -12,12 +12,12 @@ interface Game {
   category: { name: string } | null;
 }
 
-// The logo's own tagline — เติมเกมไว ปลอดภัย คุ้มค่า — is the value prop,
+// The logo's tagline (เติมเกมไว ปลอดภัย คุ้มค่า) is the value prop,
 // so the feature trio simply spells it out.
 const PROMISES = [
-  { th: 'เติมเกมไว', key: 'promiseSpeed', Icon: Zap },
-  { th: 'ปลอดภัย', key: 'promiseSafety', Icon: ShieldCheck },
-  { th: 'คุ้มค่า', key: 'promiseValue', Icon: BadgePercent },
+  { titleKey: 'promiseSpeedTitle', key: 'promiseSpeed', Icon: Zap },
+  { titleKey: 'promiseSafetyTitle', key: 'promiseSafety', Icon: ShieldCheck },
+  { titleKey: 'promiseValueTitle', key: 'promiseValue', Icon: BadgePercent },
 ] as const;
 
 export default async function HomePage() {
@@ -30,7 +30,7 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto px-4 pt-12 pb-14 grid md:grid-cols-[1fr_auto] items-center gap-8">
           <div>
             <p className="font-display text-sm tracking-[0.2em] text-neon mb-4">
-              เติมเกมไว · ปลอดภัย · คุ้มค่า
+              {t('heroTagline')}
             </p>
             <h1 className="font-display italic font-bold text-5xl sm:text-6xl leading-[1.02] max-w-2xl">
               <span className="text-frost">{t('heroLine1')}</span>
@@ -42,11 +42,11 @@ export default async function HomePage() {
             </p>
 
             <dl className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl">
-              {PROMISES.map(({ th, key, Icon }) => (
-                <div key={th} className="flex items-start gap-3">
+              {PROMISES.map(({ titleKey, key, Icon }) => (
+                <div key={key} className="flex items-start gap-3">
                   <Icon size={20} className="text-pixel-bright shrink-0 mt-1" />
                   <div>
-                    <dt className="font-display font-semibold text-sm">{th}</dt>
+                    <dt className="font-display font-semibold text-sm">{t(titleKey)}</dt>
                     <dd className="text-frost/50 text-sm font-light">{t(key)}</dd>
                   </div>
                 </div>

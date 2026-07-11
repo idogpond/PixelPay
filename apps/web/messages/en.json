@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "PixelPay — Fast, safe, great-value game top-ups",
+    "description": "Game top-ups over PromptPay — fast, safe, great value."
+  },
   "common": {
     "loading": "Loading…",
     "error": "Error: {message}",
@@ -14,7 +18,8 @@
     "active": "Active",
     "inactive": "Inactive",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "tagline": "Fast top-ups. Safe. Great value."
   },
   "nav": {
     "orders": "Orders",
@@ -28,11 +33,15 @@
     "footerNote": "PixelPay — game top-ups over PromptPay"
   },
   "home": {
+    "heroTagline": "Fast top-ups · Safe · Great value",
     "heroLine1": "Top up fast.",
     "heroLine2": "Play non-stop.",
     "heroSub": "Scan a PromptPay QR and your credits land in the game before the code goes cold.",
+    "promiseSpeedTitle": "Fast top-ups",
     "promiseSpeed": "Orders clear in seconds",
+    "promiseSafetyTitle": "Safe & secure",
     "promiseSafety": "Paid by PromptPay, tracked live",
+    "promiseValueTitle": "Great value",
     "promiseValue": "Fair prices in THB, no card needed",
     "chooseGame": "Choose a game",
     "noGames": "No games are live right now — check back soon."
