@@ -1,9 +1,9 @@
 'use client';
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -14,10 +14,11 @@ import { ThemeToggle } from '../../../components/theme/ThemeToggle';
 
 type FormData = { email: string; password: string };
 
-export default function LoginPage() {
+function LoginForm() {
   const t = useTranslations('auth');
   const tc = useTranslations('common');
   const router = useRouter();
+  const searchParams = useSearchParams();
   const setUser = useAuthStore((s) => s.setUser);
   const schema = useMemo(
     () =>
@@ -40,7 +41,8 @@ export default function LoginPage() {
       setUser(res.user, res.accessToken);
       document.cookie = `pixelpay-token=${encodeURIComponent(res.accessToken)}; path=/; samesite=strict`;
       document.cookie = `pixelpay-refresh=${encodeURIComponent(res.refreshToken)}; path=/; samesite=strict`;
-      router.push('/');
+      const returnTo = searchParams.get('returnTo');
+      router.push(returnTo && returnTo.startsWith('/') ? returnTo : '/');
     } catch (e: any) {
       setError('root', { message: e.message });
     }
@@ -100,5 +102,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
