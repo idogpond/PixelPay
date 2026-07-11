@@ -1,36 +1,39 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
+  darkMode: ['selector', '[data-theme="dark"]'],
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // Palette sampled from the PixelPay logo: violet→blue pixel gradient on black
+        // Every token resolves through a CSS var so light/dark can swap the
+        // underlying RGB without touching a single className — see globals.css
+        // for the two value sets (`:root` = dark, `[data-theme="light"]`).
         void: {
-          DEFAULT: '#0B0B12',
-          deep: '#050508',
+          DEFAULT: 'rgb(var(--c-void) / <alpha-value>)',
+          deep: 'rgb(var(--c-void-deep) / <alpha-value>)',
         },
         panel: {
-          DEFAULT: '#14141F',
-          light: '#1C1C2B',
+          DEFAULT: 'rgb(var(--c-panel) / <alpha-value>)',
+          light: 'rgb(var(--c-panel-light) / <alpha-value>)',
         },
         pixel: {
-          DEFAULT: '#A855F7',
-          dim: '#7C3AED',
-          bright: '#C084FC',
+          DEFAULT: 'rgb(var(--c-pixel) / <alpha-value>)',
+          dim: 'rgb(var(--c-pixel-dim) / <alpha-value>)',
+          bright: 'rgb(var(--c-pixel-bright) / <alpha-value>)',
         },
         pay: {
-          DEFAULT: '#3B82F6',
-          bright: '#60A5FA',
+          DEFAULT: 'rgb(var(--c-pay) / <alpha-value>)',
+          bright: 'rgb(var(--c-pay-bright) / <alpha-value>)',
         },
-        neon: '#22D3EE',
+        neon: 'rgb(var(--c-neon) / <alpha-value>)',
         pink: {
-          DEFAULT: '#EC4899',
-          dim: '#DB2777',
+          DEFAULT: 'rgb(var(--c-pink) / <alpha-value>)',
+          dim: 'rgb(var(--c-pink-dim) / <alpha-value>)',
         },
-        gold: '#FACC15',
-        mint: '#34D399',
-        frost: '#E9E9F4',
+        gold: 'rgb(var(--c-gold) / <alpha-value>)',
+        mint: 'rgb(var(--c-mint) / <alpha-value>)',
+        frost: 'rgb(var(--c-frost) / <alpha-value>)',
       },
       fontFamily: {
         display: ['var(--font-display)'],

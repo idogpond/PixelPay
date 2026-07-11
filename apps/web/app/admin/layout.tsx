@@ -21,6 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <Link href="/admin/orders" className="text-sm font-body text-frost/70 hover:text-pixel-bright transition-colors">{t('orders')}</Link>
         <Link href="/admin/users" className="text-sm font-body text-frost/70 hover:text-pixel-bright transition-colors">{t('users')}</Link>
         <div className="ml-auto flex items-center gap-4">
+          <ThemeToggle />
           <LanguageSwitcher />
           <Link href="/" className="text-sm font-body text-frost/40 hover:text-pixel-bright transition-colors">{t('backToStore')}</Link>
         </div>

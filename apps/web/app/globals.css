@@ -3,13 +3,59 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: dark;
+
+    /* Neutrals — dark theme (default): near-black void, pale-frost text */
+    --c-void: 11 11 18;
+    --c-void-deep: 5 5 8;
+    --c-panel: 20 20 31;
+    --c-panel-light: 28 28 43;
+    --c-frost: 233 233 244;
+
+    /* Accents — tuned for contrast against dark surfaces */
+    --c-pixel: 168 85 247;
+    --c-pixel-dim: 124 58 237;
+    --c-pixel-bright: 192 132 252;
+    --c-pay: 59 130 246;
+    --c-pay-bright: 96 165 250;
+    --c-neon: 34 211 238;
+    --c-pink: 236 72 153;
+    --c-pink-dim: 219 39 119;
+    --c-gold: 250 204 21;
+    --c-mint: 52 211 153;
+  }
+
+  :root[data-theme='light'] {
+    color-scheme: light;
+
+    /* Neutrals — light theme: soft lavender-white surfaces, ink text */
+    --c-void: 238 238 245;
+    --c-void-deep: 225 225 240;
+    --c-panel: 255 255 255;
+    --c-panel-light: 247 247 252;
+    --c-frost: 20 20 31;
+
+    /* Accents — deepened/desaturated a touch so they still read on white */
+    --c-pixel: 147 51 234;
+    --c-pixel-dim: 109 40 217;
+    --c-pixel-bright: 124 58 237;
+    --c-pay: 37 99 235;
+    --c-pay-bright: 59 130 246;
+    --c-neon: 8 145 178;
+    --c-pink: 219 39 119;
+    --c-pink-dim: 190 24 93;
+    --c-gold: 161 98 7;
+    --c-mint: 5 150 105;
+  }
+
   ::selection {
-    background-color: theme('colors.pixel.DEFAULT');
+    background-color: rgb(var(--c-pixel));
     color: white;
   }
 
   :focus-visible {
-    outline: 2px solid theme('colors.pixel.DEFAULT');
+    outline: 2px solid rgb(var(--c-pixel));
     outline-offset: 2px;
   }
 
@@ -31,16 +77,17 @@
 
   /* Brand gradient (violet → blue), for CTAs and display text */
   .grad-brand {
-    background-image: linear-gradient(100deg, theme('colors.pixel.DEFAULT'), theme('colors.pay.DEFAULT'));
+    background-image: linear-gradient(100deg, rgb(var(--c-pixel)), rgb(var(--c-pay)));
   }
   .grad-text {
-    background-image: linear-gradient(100deg, theme('colors.pixel.bright'), theme('colors.pay.bright'));
+    background-image: linear-gradient(100deg, rgb(var(--c-pixel-bright)), rgb(var(--c-pay-bright)));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
-  /* Bezeled recess for the credit-counter signature component */
+  /* Bezeled recess for the credit-counter signature component — deliberately
+     stays a fixed dark casing in both themes, like an LCD's physical bezel. */
   .counter-bezel {
     background: linear-gradient(180deg, #08080d 0%, #101018 100%);
     box-shadow: theme('boxShadow.counter');
@@ -59,8 +106,8 @@
     height: 2px;
     background-image: linear-gradient(90deg,
       transparent,
-      theme('colors.pixel.DEFAULT') 20%,
-      theme('colors.pay.DEFAULT') 80%,
+      rgb(var(--c-pixel)) 20%,
+      rgb(var(--c-pay)) 80%,
       transparent
     );
   }
