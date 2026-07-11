@@ -14,6 +14,9 @@ import { CreateGameDto } from '../games/dto/create-game.dto';
 import { UpdateGameDto } from '../games/dto/update-game.dto';
 import { CreateProductDto } from '../games/dto/create-product.dto';
 import { UpdateProductDto } from '../games/dto/update-product.dto';
+import { CategoriesService } from '../categories/categories.service';
+import { CreateCategoryDto } from '../categories/dto/create-category.dto';
+import { UpdateCategoryDto } from '../categories/dto/update-category.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
@@ -25,6 +28,7 @@ export class AdminController {
     private analytics: AnalyticsService,
     private resellers: ResellersService,
     private games: GamesService,
+    private categories: CategoriesService,
   ) {}
 
   @Get('stats')
@@ -148,4 +152,21 @@ export class AdminController {
   deleteProduct(@Param('productId') productId: string) {
     return this.games.adminDeleteProduct(productId);
   }
+
+  // ── category management ──────────────────────────────────────────────────
+
+  @Get('categories')
+  listCategories() { return this.categories.adminList(); }
+
+  @Post('categories')
+  createCategory(@Body() dto: CreateCategoryDto) { return this.categories.adminCreate(dto); }
+
+  @Patch('categories/:id')
+  updateCategory(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
+    return this.categories.adminUpdate(id, dto);
+  }
+
+  @Delete('categories/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteCategory(@Param('id') id: string) { return this.categories.adminDelete(id); }
 }
