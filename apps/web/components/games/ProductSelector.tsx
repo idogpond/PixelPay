@@ -3,10 +3,10 @@ import { useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { clsx } from 'clsx';
-import { apiFetch } from '../../lib/api-client';
+import { apiFetch, getAccessToken, readCookie } from '../../lib/api-client';
 
 export interface Product {
   id: string;
@@ -25,6 +25,7 @@ type FormData = { gameUid: string; gameServer?: string; gameUsername?: string; c
 export function ProductSelector({ products }: Props) {
   const t = useTranslations('games');
   const router = useRouter();
+  const pathname = usePathname();
   const [selected, setSelected] = useState<Product | null>(null);
   const selectedRef = useRef<Product | null>(null);
 
@@ -61,6 +62,11 @@ export function ProductSelector({ products }: Props) {
   };
 
   const onSubmit = async (data: FormData) => {
+    const token = getAccessToken() ?? readCookie('pixelpay-token');
+    if (!token) {
+      router.push(`/login?returnTo=${encodeURIComponent(pathname)}`);
+      return;
+    }
     const product = selectedRef.current;
     if (!product) {
       setError('root', { message: t('errors.pickFirst') });
