@@ -5,11 +5,17 @@ import { useTranslations } from 'next-intl';
 import { apiFetch } from '../../../lib/api-client';
 import { GameFormModal, GameFormData } from '../../../components/admin/games/GameFormModal';
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface Game {
   id: string;
   name: string;
   slug: string;
-  category: string | null;
+  category: Category | null;
   description: string | null;
   descriptionTh: string | null;
   isActive: boolean;
@@ -36,14 +42,14 @@ export default function AdminGamesPage() {
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCreate = async (data: GameFormData) => {
-    await apiFetch('/admin/games', { method: 'POST', body: JSON.stringify(data) });
+    await apiFetch('/admin/games', { method: 'POST', body: JSON.stringify({ ...data, categoryId: data.categoryId || null }) });
     setModal(null);
     load();
   };
 
   const handleEdit = async (data: GameFormData) => {
     if (modal?.mode !== 'edit') return;
-    await apiFetch(`/admin/games/${modal.game.id}`, { method: 'PATCH', body: JSON.stringify(data) });
+    await apiFetch(`/admin/games/${modal.game.id}`, { method: 'PATCH', body: JSON.stringify({ ...data, categoryId: data.categoryId || null }) });
     setModal(null);
     load();
   };
@@ -92,7 +98,7 @@ export default function AdminGamesPage() {
               <tr key={g.id} className="hover:bg-panel-light/60">
                 <td className="px-4 py-3 font-medium text-frost">{g.name}</td>
                 <td className="px-4 py-3 text-frost/50 font-mono">{g.slug}</td>
-                <td className="px-4 py-3 text-frost/50">{g.category ?? '—'}</td>
+                <td className="px-4 py-3 text-frost/50">{g.category?.name ?? '—'}</td>
                 <td className="px-4 py-3 text-center text-frost/50 font-mono tabular-nums">{g.sortOrder}</td>
                 <td className="px-4 py-3 text-center">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${g.isActive ? 'bg-mint/15 text-mint' : 'bg-frost/10 text-frost/50'}`}>
@@ -120,7 +126,7 @@ export default function AdminGamesPage() {
           title={t('editTitle', { name: modal.game.name })}
           initial={{
             ...modal.game,
-            category: modal.game.category ?? undefined,
+            categoryId: modal.game.category?.id,
             logoUrl: modal.game.logoUrl ?? undefined,
             description: modal.game.description ?? undefined,
             descriptionTh: modal.game.descriptionTh ?? undefined,

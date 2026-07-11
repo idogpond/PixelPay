@@ -1,19 +1,25 @@
 'use client';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslations } from 'next-intl';
+import { apiFetch } from '../../../lib/api-client';
 
 export interface GameFormData {
   name: string;
   slug: string;
-  category?: string;
+  categoryId?: string;
   logoUrl?: string;
   description?: string;
   descriptionTh?: string;
   isActive: boolean;
   sortOrder: number;
+}
+
+interface Category {
+  id: string;
+  name: string;
 }
 
 interface Props {
@@ -26,13 +32,19 @@ interface Props {
 export function GameFormModal({ initial, onSubmit, onClose, title }: Props) {
   const t = useTranslations('admin.games.form');
   const tc = useTranslations('common');
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    apiFetch<Category[]>('/admin/categories').then(setCategories).catch(() => {});
+  }, []);
+
   const resolver = useMemo(
     () =>
       zodResolver(
         z.object({
           name: z.string().min(1).max(100),
           slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/, t('slugPattern')),
-          category: z.string().max(50).optional(),
+          categoryId: z.string().uuid().optional().or(z.literal('')),
           logoUrl: z.string().url().optional().or(z.literal('')),
           description: z.string().max(500).optional(),
           descriptionTh: z.string().max(500).optional(),
@@ -81,7 +93,12 @@ export function GameFormModal({ initial, onSubmit, onClose, title }: Props) {
           </div>
           <div>
             <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">{t('category')}</label>
-            <input {...register('category')} className="w-full border border-frost/15 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel" placeholder="MOBA, RPG, FPS…" />
+            <select {...register('categoryId')} className="w-full border border-frost/15 bg-void px-3 py-2 text-sm text-frost focus:outline-none focus:ring-2 focus:ring-pixel focus:border-pixel">
+              <option value="">{t('noCategory')}</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-xs font-mono uppercase tracking-wider text-frost/50 mb-1">{t('description')}</label>
