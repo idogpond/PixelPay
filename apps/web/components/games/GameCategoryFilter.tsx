@@ -37,9 +37,9 @@ export function GameCategoryFilter({ games, categories }: Props) {
   return (
     <>
       <div className="relative mb-5 max-w-xs">
-        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-frost/40" />
+        <Search size={16} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-frost/40" />
         <input
-          type="text"
+          type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('searchPlaceholder')}
