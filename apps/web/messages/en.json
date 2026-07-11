@@ -45,7 +45,9 @@
     "promiseValue": "Fair prices in THB, no card needed",
     "chooseGame": "Choose a game",
     "categoryAll": "All",
-    "noGames": "No games are live right now — check back soon."
+    "noGames": "No games are live right now — check back soon.",
+    "searchPlaceholder": "Search games…",
+    "noSearchResults": "No games match your search."
   },
   "auth": {
     "loginTitle": "Welcome back",
