@@ -35,6 +35,7 @@ describe('CategoriesService', () => {
       expect(mockPrisma.category.findMany).toHaveBeenCalledWith({
         where: { isActive: true },
         orderBy: { sortOrder: 'asc' },
+        select: { id: true, name: true, slug: true },
       });
       expect(result).toEqual([{ id: 'c1', name: 'FPS' }]);
     });

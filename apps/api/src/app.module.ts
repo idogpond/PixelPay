@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { WalletModule } from './wallet/wallet.module';
 import { PaymentsModule } from './payments/payments.module';
 import { GamesModule } from './games/games.module';
+import { CategoriesModule } from './categories/categories.module';
 import { ProvidersModule } from './providers/providers.module';
 import { OrdersModule } from './orders/orders.module';
 import { CouponsModule } from './coupons/coupons.module';
@@ -40,6 +41,7 @@ import { HealthModule } from './health/health.module';
     WalletModule,
     PaymentsModule,
     GamesModule,
+    CategoriesModule,
     ProvidersModule,
     OrdersModule,
     CouponsModule,
