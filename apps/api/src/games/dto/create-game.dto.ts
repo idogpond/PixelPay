@@ -30,7 +30,7 @@ export class CreateGameDto {
 
   @IsOptional()
   @IsUUID()
-  categoryId?: string;
+  categoryId?: string | null;
 
   @IsOptional()
   @IsBoolean()

@@ -44,7 +44,10 @@ describe('GamesService — admin methods', () => {
     it('returns all games ordered by sortOrder', async () => {
       mockPrisma.game.findMany.mockResolvedValue([{ id: 'g1', name: 'Game A' }]);
       const result = await service.adminListGames();
-      expect(mockPrisma.game.findMany).toHaveBeenCalledWith({ orderBy: { sortOrder: 'asc' } });
+      expect(mockPrisma.game.findMany).toHaveBeenCalledWith({
+        orderBy: { sortOrder: 'asc' },
+        include: { category: { select: { id: true, name: true, slug: true } } },
+      });
       expect(result).toEqual([{ id: 'g1', name: 'Game A' }]);
     });
   });

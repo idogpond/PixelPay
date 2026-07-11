@@ -15,14 +15,20 @@ export class GamesService {
     return this.prisma.game.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: 'asc' },
-      select: { id: true, name: true, slug: true, logoUrl: true, category: true, sortOrder: true },
+      select: {
+        id: true, name: true, slug: true, logoUrl: true, sortOrder: true,
+        category: { select: { id: true, name: true, slug: true } },
+      },
     });
   }
 
   async findBySlug(slug: string) {
     const game = await this.prisma.game.findUnique({
       where: { slug },
-      select: { id: true, name: true, slug: true, logoUrl: true, bannerUrl: true, description: true, descriptionTh: true, category: true },
+      select: {
+        id: true, name: true, slug: true, logoUrl: true, bannerUrl: true, description: true, descriptionTh: true,
+        category: { select: { id: true, name: true, slug: true } },
+      },
     });
     if (!game) throw new NotFoundException('Game not found');
     return game;
@@ -39,7 +45,10 @@ export class GamesService {
   // ── admin methods ────────────────────────────────────────────────────────
 
   adminListGames() {
-    return this.prisma.game.findMany({ orderBy: { sortOrder: 'asc' } });
+    return this.prisma.game.findMany({
+      orderBy: { sortOrder: 'asc' },
+      include: { category: { select: { id: true, name: true, slug: true } } },
+    });
   }
 
   async adminCreateGame(dto: CreateGameDto) {

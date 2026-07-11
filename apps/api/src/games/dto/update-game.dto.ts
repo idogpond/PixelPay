@@ -32,7 +32,7 @@ export class UpdateGameDto {
 
   @IsOptional()
   @IsUUID()
-  categoryId?: string;
+  categoryId?: string | null;
 
   @IsOptional()
   @IsBoolean()
