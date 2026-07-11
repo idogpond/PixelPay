@@ -34,10 +34,6 @@ export function GameFormModal({ initial, onSubmit, onClose, title }: Props) {
   const tc = useTranslations('common');
   const [categories, setCategories] = useState<Category[]>([]);
 
-  useEffect(() => {
-    apiFetch<Category[]>('/admin/categories').then(setCategories).catch(() => {});
-  }, []);
-
   const resolver = useMemo(
     () =>
       zodResolver(
@@ -57,6 +53,7 @@ export function GameFormModal({ initial, onSubmit, onClose, title }: Props) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
     setError,
   } = useForm<GameFormData>({
@@ -67,6 +64,17 @@ export function GameFormModal({ initial, onSubmit, onClose, title }: Props) {
       ...initial,
     },
   });
+
+  useEffect(() => {
+    apiFetch<Category[]>('/admin/categories').then((cats) => {
+      setCategories(cats);
+      // The <select>'s options don't exist until this fetch resolves, so its
+      // browser-assigned value silently falls back to blank on mount even
+      // though defaultValues.categoryId was set — re-apply it now that a
+      // matching <option> actually exists in the DOM.
+      if (initial?.categoryId) setValue('categoryId', initial.categoryId);
+    }).catch(() => {});
+  }, [initial?.categoryId, setValue]);
 
   const submit = async (data: GameFormData) => {
     try {
