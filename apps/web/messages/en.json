@@ -211,6 +211,7 @@
       "badge": "Admin",
       "dashboard": "Dashboard",
       "games": "Games",
+      "categories": "Categories",
       "orders": "Orders",
       "users": "Users",
       "backToStore": "← Store"
@@ -241,9 +242,30 @@
         "slugHint": "(lowercase-hyphens)",
         "slugPattern": "Lowercase, numbers and hyphens only",
         "category": "Category",
+        "noCategory": "— No category —",
         "description": "Description (English)",
         "descriptionTh": "Description (Thai)",
         "logoUrl": "Logo URL",
+        "sortOrder": "Sort order",
+        "active": "Active"
+      }
+    },
+    "categories": {
+      "title": "Categories",
+      "newCategory": "+ New category",
+      "name": "Name",
+      "slug": "Slug",
+      "order": "Order",
+      "status": "Status",
+      "noCategories": "No categories yet. Click \"+ New category\" to create one.",
+      "deleteConfirm": "Delete \"{name}\"? Games in this category will become uncategorized.",
+      "newCategoryTitle": "New Category",
+      "editTitle": "Edit — {name}",
+      "form": {
+        "name": "Name *",
+        "slugLabel": "Slug *",
+        "slugHint": "(lowercase-hyphens)",
+        "slugPattern": "Lowercase, numbers and hyphens only",
         "sortOrder": "Sort order",
         "active": "Active"
       }

@@ -211,6 +211,7 @@
       "badge": "แอดมิน",
       "dashboard": "แดชบอร์ด",
       "games": "เกม",
+      "categories": "หมวดหมู่",
       "orders": "คำสั่งซื้อ",
       "users": "ผู้ใช้",
       "backToStore": "← หน้าร้าน"
@@ -241,9 +242,30 @@
         "slugHint": "(ตัวพิมพ์เล็ก-ขีดกลาง)",
         "slugPattern": "ตัวพิมพ์เล็ก ตัวเลข และขีดกลางเท่านั้น",
         "category": "หมวดหมู่",
+        "noCategory": "— ไม่มีหมวดหมู่ —",
         "description": "คำอธิบาย (อังกฤษ)",
         "descriptionTh": "คำอธิบาย (ไทย)",
         "logoUrl": "URL โลโก้",
+        "sortOrder": "ลำดับ",
+        "active": "ใช้งาน"
+      }
+    },
+    "categories": {
+      "title": "หมวดหมู่",
+      "newCategory": "+ เพิ่มหมวดหมู่",
+      "name": "ชื่อ",
+      "slug": "Slug",
+      "order": "ลำดับ",
+      "status": "สถานะ",
+      "noCategories": "ยังไม่มีหมวดหมู่ กด \"+ เพิ่มหมวดหมู่\" เพื่อสร้าง",
+      "deleteConfirm": "ลบ \"{name}\"? เกมในหมวดหมู่นี้จะไม่มีหมวดหมู่",
+      "newCategoryTitle": "เพิ่มหมวดหมู่",
+      "editTitle": "แก้ไข — {name}",
+      "form": {
+        "name": "ชื่อ *",
+        "slugLabel": "Slug *",
+        "slugHint": "(ตัวพิมพ์เล็ก-ขีดกลาง)",
+        "slugPattern": "ตัวพิมพ์เล็ก ตัวเลข และขีดกลางเท่านั้น",
         "sortOrder": "ลำดับ",
         "active": "ใช้งาน"
       }
