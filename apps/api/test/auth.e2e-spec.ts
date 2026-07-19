@@ -77,4 +77,39 @@ describe('Auth (e2e)', () => {
         .expect(401);
     });
   });
+
+  describe('POST /api/v1/auth/refresh', () => {
+    it('returns a new token pair for a valid refresh token', async () => {
+      const loginRes = await request(app.getHttpServer())
+        .post('/api/v1/auth/login')
+        .send({ email: user.email, password: user.password })
+        .expect(200);
+
+      const { refreshToken } = loginRes.body.data;
+
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/auth/refresh')
+        .send({ refreshToken })
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.accessToken).toBeDefined();
+      expect(res.body.data.refreshToken).toBeDefined();
+      expect(res.body.data.refreshToken).not.toBe(refreshToken);
+    });
+
+    it('rejects an invalid refresh token', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/auth/refresh')
+        .send({ refreshToken: 'not-a-real-token' })
+        .expect(401);
+    });
+
+    it('rejects a request with no refresh token', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/auth/refresh')
+        .send({})
+        .expect(400);
+    });
+  });
 });

@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Post, Request, UseGuards } from '@nest
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 
@@ -19,6 +20,12 @@ export class AuthController {
   @Post('login')
   login(@Request() req: any) {
     return this.auth.login(req.user);
+  }
+
+  @HttpCode(200)
+  @Post('refresh')
+  refresh(@Body() dto: RefreshTokenDto) {
+    return this.auth.refreshTokens(dto.refreshToken);
   }
 
   @UseGuards(JwtAuthGuard)
