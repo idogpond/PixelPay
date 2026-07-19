@@ -87,6 +87,12 @@ describe('Auth (e2e)', () => {
 
       const { refreshToken } = loginRes.body.data;
 
+      // JWT `iat` has second-level precision and signing is deterministic,
+      // so a login immediately followed by a refresh within the same wall
+      // clock second produces a byte-identical token. Wait past the second
+      // boundary so the two tokens are actually distinguishable.
+      await new Promise((resolve) => setTimeout(resolve, 1100));
+
       const res = await request(app.getHttpServer())
         .post('/api/v1/auth/refresh')
         .send({ refreshToken })
