@@ -22,9 +22,40 @@ export function readCookie(name: string): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
+// Shared across concurrent 401s so a burst of requests triggers one
+// /auth/refresh call, not one per request — later callers await the same
+// in-flight promise instead of racing their own refresh attempts.
+let refreshPromise: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+  if (!refreshPromise) {
+    refreshPromise = doRefresh().finally(() => { refreshPromise = null; });
+  }
+  return refreshPromise;
+}
+
+async function doRefresh(): Promise<string | null> {
+  const refreshToken = readCookie('pixelpay-refresh');
+  if (!refreshToken) return null;
+
+  try {
+    const tokens = await apiFetch<{ accessToken: string; refreshToken: string }>(
+      '/auth/refresh',
+      { method: 'POST', body: JSON.stringify({ refreshToken }) },
+    );
+    setAccessToken(tokens.accessToken);
+    document.cookie = `pixelpay-token=${encodeURIComponent(tokens.accessToken)}; path=/; samesite=strict`;
+    document.cookie = `pixelpay-refresh=${encodeURIComponent(tokens.refreshToken)}; path=/; samesite=strict`;
+    return tokens.accessToken;
+  } catch {
+    return null;
+  }
+}
+
 export async function apiFetch<T>(
   path: string,
   options: RequestInit & { params?: Record<string, string> } = {},
+  _isRetry = false,
 ): Promise<T> {
   const url = new URL(`${BASE}${path}`);
   if (options.params) {
@@ -41,7 +72,11 @@ export async function apiFetch<T>(
   const res = await fetch(url.toString(), { ...options, headers });
   const json = (res.status === 204 || res.status === 205) ? null : await res.json();
 
-  if (res.status === 401 && typeof window !== 'undefined' && path !== '/auth/login') {
+  if (res.status === 401 && typeof window !== 'undefined' && path !== '/auth/login' && path !== '/auth/refresh') {
+    if (!_isRetry) {
+      const newToken = await refreshAccessToken();
+      if (newToken) return apiFetch<T>(path, options, true);
+    }
     document.cookie = 'pixelpay-token=; path=/; max-age=0';
     const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
     window.location.href = `/login?returnTo=${returnTo}`;
