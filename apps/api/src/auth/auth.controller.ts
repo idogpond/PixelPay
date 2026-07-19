@@ -22,6 +22,10 @@ export class AuthController {
     return this.auth.login(req.user);
   }
 
+  // Intentionally unauthenticated: the refresh token in the body is the
+  // credential, and the caller's access token is expected to be expired.
+  // Do NOT add a JwtAuthGuard here — it would reject the expired access
+  // token before the refresh token in the body is ever examined.
   @HttpCode(200)
   @Post('refresh')
   refresh(@Body() dto: RefreshTokenDto) {
