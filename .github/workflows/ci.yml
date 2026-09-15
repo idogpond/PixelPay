@@ -11,16 +11,17 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      postgres:
-        image: postgres:16-alpine
+      mysql:
+        image: mysql:8.0
         env:
-          POSTGRES_USER: pixelpay
-          POSTGRES_PASSWORD: pixelpay
-          POSTGRES_DB: pixelpay_test
+          MYSQL_ROOT_PASSWORD: pixelpay
+          MYSQL_USER: pixelpay
+          MYSQL_PASSWORD: pixelpay
+          MYSQL_DATABASE: pixelpay_test
         ports:
-          - 5432:5432
+          - 3306:3306
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "mysqladmin ping -h localhost -u pixelpay -ppixelpay"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -51,12 +52,12 @@ jobs:
 
       - name: Run migrations
         env:
-          DATABASE_URL: postgresql://pixelpay:pixelpay@localhost:5432/pixelpay_test
+          DATABASE_URL: mysql://pixelpay:pixelpay@localhost:3306/pixelpay_test
         run: cd apps/api && npx prisma migrate deploy
 
       - name: Run unit tests
         env:
-          DATABASE_URL: postgresql://pixelpay:pixelpay@localhost:5432/pixelpay_test
+          DATABASE_URL: mysql://pixelpay:pixelpay@localhost:3306/pixelpay_test
           REDIS_URL: redis://localhost:6379
           JWT_SECRET: test_jwt_secret_64_chars_minimum_for_testing_purposes_only
           JWT_REFRESH_SECRET: test_refresh_secret_64_chars_minimum_for_testing_purposes
@@ -67,7 +68,7 @@ jobs:
 
       - name: Run e2e tests
         env:
-          DATABASE_URL: postgresql://pixelpay:pixelpay@localhost:5432/pixelpay_test
+          DATABASE_URL: mysql://pixelpay:pixelpay@localhost:3306/pixelpay_test
           REDIS_URL: redis://localhost:6379
           JWT_SECRET: test_jwt_secret_64_chars_minimum_for_testing_purposes_only
           JWT_REFRESH_SECRET: test_refresh_secret_64_chars_minimum_for_testing_purposes

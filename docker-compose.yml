@@ -1,16 +1,17 @@
 services:
-  postgres:
-    image: postgres:16-alpine
+  mysql:
+    image: mysql:8.0
     environment:
-      POSTGRES_USER: pixelpay
-      POSTGRES_PASSWORD: pixelpay
-      POSTGRES_DB: pixelpay
+      MYSQL_ROOT_PASSWORD: pixelpay
+      MYSQL_USER: pixelpay
+      MYSQL_PASSWORD: pixelpay
+      MYSQL_DATABASE: pixelpay
     ports:
-      - "5432:5432"
+      - "${MYSQL_HOST_PORT:-3306}:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pixelpay"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "pixelpay", "-ppixelpay"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,10 +40,10 @@ services:
       - "4000:3000"
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://pixelpay:pixelpay@postgres:5432/pixelpay
+      DATABASE_URL: mysql://pixelpay:pixelpay@mysql:3306/pixelpay
       REDIS_URL: redis://:pixelpay@redis:6379
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -63,5 +64,5 @@ services:
       - api
 
 volumes:
-  postgres_data:
+  mysql_data:
   redis_data:

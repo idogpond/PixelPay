@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -90,7 +90,7 @@ enum NotificationChannel {
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 model User {
-  id           String   @id @default(uuid()) @db.Uuid
+  id           String   @id @default(uuid()) @db.Char(36)
   email        String   @unique @db.VarChar(255)
   phone        String?  @unique @db.VarChar(20)
   passwordHash String   @map("password_hash")
@@ -100,9 +100,9 @@ model User {
   isVerified   Boolean  @default(false) @map("is_verified")
   isActive     Boolean  @default(true) @map("is_active")
   referralCode String   @unique @map("referral_code") @db.VarChar(12)
-  referredById String?  @map("referred_by") @db.Uuid
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  referredById String?  @map("referred_by") @db.Char(36)
+  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.DateTime(3)
 
   referredBy   User?  @relation("UserReferrals", fields: [referredById], references: [id])
   referredUsers User[] @relation("UserReferrals")
@@ -122,12 +122,12 @@ model User {
 }
 
 model Wallet {
-  id            String   @id @default(uuid()) @db.Uuid
-  userId        String   @unique @map("user_id") @db.Uuid
+  id            String   @id @default(uuid()) @db.Char(36)
+  userId        String   @unique @map("user_id") @db.Char(36)
   balance       Decimal  @default(0.00) @db.Decimal(15, 2)
   lockedBalance Decimal  @default(0.00) @map("locked_balance") @db.Decimal(15, 2)
   currency      String   @default("THB") @db.VarChar(3)
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.DateTime(3)
 
   user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions WalletTransaction[]
@@ -136,16 +136,16 @@ model Wallet {
 }
 
 model WalletTransaction {
-  id            String                @id @default(uuid()) @db.Uuid
-  walletId      String                @map("wallet_id") @db.Uuid
+  id            String                @id @default(uuid()) @db.Char(36)
+  walletId      String                @map("wallet_id") @db.Char(36)
   type          WalletTransactionType
   amount        Decimal               @db.Decimal(15, 2)
   balanceBefore Decimal               @map("balance_before") @db.Decimal(15, 2)
   balanceAfter  Decimal               @map("balance_after") @db.Decimal(15, 2)
-  referenceId   String?               @map("reference_id") @db.Uuid
+  referenceId   String?               @map("reference_id") @db.Char(36)
   referenceType String?               @map("reference_type") @db.VarChar(50)
   metadata      Json?
-  createdAt     DateTime              @default(now()) @map("created_at") @db.Timestamptz()
+  createdAt     DateTime              @default(now()) @map("created_at") @db.DateTime(3)
 
   wallet Wallet @relation(fields: [walletId], references: [id])
 
@@ -155,13 +155,13 @@ model WalletTransaction {
 }
 
 model Category {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String   @id @default(uuid()) @db.Char(36)
   name      String   @db.VarChar(50)
   slug      String   @unique @db.VarChar(50)
   sortOrder Int      @default(0) @map("sort_order")
   isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
 
   games Game[]
 
@@ -169,19 +169,19 @@ model Category {
 }
 
 model Game {
-  id          String   @id @default(uuid()) @db.Uuid
+  id          String   @id @default(uuid()) @db.Char(36)
   name        String   @db.VarChar(100)
   slug        String   @unique @db.VarChar(100)
   logoUrl     String?  @map("logo_url")
   bannerUrl   String?  @map("banner_url")
   description   String?
   descriptionTh String?  @map("description_th")
-  categoryId    String?  @map("category_id") @db.Uuid
+  categoryId    String?  @map("category_id") @db.Char(36)
   isActive    Boolean  @default(true) @map("is_active")
   sortOrder   Int      @default(0) @map("sort_order")
   metadata    Json?    @default("{}")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt   DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.DateTime(3)
 
   category      Category?     @relation(fields: [categoryId], references: [id])
   products      GameProduct[]
@@ -193,8 +193,8 @@ model Game {
 }
 
 model GameProduct {
-  id               String      @id @default(uuid()) @db.Uuid
-  gameId           String      @map("game_id") @db.Uuid
+  id               String      @id @default(uuid()) @db.Char(36)
+  gameId           String      @map("game_id") @db.Char(36)
   name             String      @db.VarChar(200)
   sku              String      @unique @db.VarChar(100)
   priceCost        Decimal     @map("price_cost") @db.Decimal(15, 4)
@@ -206,8 +206,8 @@ model GameProduct {
   isActive         Boolean     @default(true) @map("is_active")
   sortOrder        Int         @default(0) @map("sort_order")
   metadata         Json?       @default("{}")
-  createdAt        DateTime    @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt        DateTime    @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt        DateTime    @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt        DateTime    @updatedAt @map("updated_at") @db.DateTime(3)
 
   game              Game              @relation(fields: [gameId], references: [id])
   providerProducts  ProviderProduct[]
@@ -219,7 +219,7 @@ model GameProduct {
 }
 
 model Provider {
-  id               String   @id @default(uuid()) @db.Uuid
+  id               String   @id @default(uuid()) @db.Char(36)
   name             String   @db.VarChar(100)
   slug             String   @unique @db.VarChar(100)
   apiUrl           String   @map("api_url")
@@ -230,8 +230,8 @@ model Provider {
   rateLimitPerMin  Int      @default(60) @map("rate_limit_per_min")
   healthCheckUrl   String?  @map("health_check_url")
   metadata         Json?    @default("{}")
-  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.DateTime(3)
 
   providerProducts ProviderProduct[]
   orders           Order[]
@@ -240,13 +240,13 @@ model Provider {
 }
 
 model ProviderProduct {
-  id             String   @id @default(uuid()) @db.Uuid
-  providerId     String   @map("provider_id") @db.Uuid
-  gameProductId  String   @map("game_product_id") @db.Uuid
+  id             String   @id @default(uuid()) @db.Char(36)
+  providerId     String   @map("provider_id") @db.Char(36)
+  gameProductId  String   @map("game_product_id") @db.Char(36)
   providerSku    String   @map("provider_sku") @db.VarChar(200)
   providerPrice  Decimal? @map("provider_price") @db.Decimal(15, 4)
   isAvailable    Boolean  @default(true) @map("is_available")
-  lastChecked    DateTime? @map("last_checked") @db.Timestamptz()
+  lastChecked    DateTime? @map("last_checked") @db.DateTime(3)
 
   provider    Provider    @relation(fields: [providerId], references: [id])
   gameProduct GameProduct @relation(fields: [gameProductId], references: [id])
@@ -256,12 +256,12 @@ model ProviderProduct {
 }
 
 model Order {
-  id                String        @id @default(uuid()) @db.Uuid
+  id                String        @id @default(uuid()) @db.Char(36)
   orderNumber       String        @unique @map("order_number") @db.VarChar(20)
-  userId            String        @map("user_id") @db.Uuid
-  gameProductId     String        @map("game_product_id") @db.Uuid
-  providerId        String?       @map("provider_id") @db.Uuid
-  couponId          String?       @map("coupon_id") @db.Uuid
+  userId            String        @map("user_id") @db.Char(36)
+  gameProductId     String        @map("game_product_id") @db.Char(36)
+  providerId        String?       @map("provider_id") @db.Char(36)
+  couponId          String?       @map("coupon_id") @db.Char(36)
   quantity          Int           @default(1)
   unitPrice         Decimal       @map("unit_price") @db.Decimal(15, 2)
   totalPrice        Decimal       @map("total_price") @db.Decimal(15, 2)
@@ -276,9 +276,9 @@ model Order {
   providerReference String?       @map("provider_reference")
   retryCount        Int           @default(0) @map("retry_count")
   metadata          Json?         @default("{}")
-  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamptz()
-  completedAt       DateTime?     @map("completed_at") @db.Timestamptz()
+  createdAt         DateTime      @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt         DateTime      @updatedAt @map("updated_at") @db.DateTime(3)
+  completedAt       DateTime?     @map("completed_at") @db.DateTime(3)
 
   user        User        @relation(fields: [userId], references: [id])
   gameProduct GameProduct @relation(fields: [gameProductId], references: [id])
@@ -296,18 +296,18 @@ model Order {
 }
 
 model Payment {
-  id               String        @id @default(uuid()) @db.Uuid
-  orderId          String?       @map("order_id") @db.Uuid
-  userId           String        @map("user_id") @db.Uuid
+  id               String        @id @default(uuid()) @db.Char(36)
+  orderId          String?       @map("order_id") @db.Char(36)
+  userId           String        @map("user_id") @db.Char(36)
   paymentMethod    PaymentMethod @map("payment_method")
   amount           Decimal       @db.Decimal(15, 2)
   currency         String        @default("THB") @db.VarChar(3)
   status           PaymentStatus @default(PENDING)
   gatewayReference String?       @map("gateway_reference") @db.VarChar(200)
   qrCodeUrl        String?       @map("qr_code_url")
-  expiresAt        DateTime?     @map("expires_at") @db.Timestamptz()
-  paidAt           DateTime?     @map("paid_at") @db.Timestamptz()
-  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz()
+  expiresAt        DateTime?     @map("expires_at") @db.DateTime(3)
+  paidAt           DateTime?     @map("paid_at") @db.DateTime(3)
+  createdAt        DateTime      @default(now()) @map("created_at") @db.DateTime(3)
 
   order Order? @relation(fields: [orderId], references: [id])
   user  User   @relation(fields: [userId], references: [id])
@@ -318,7 +318,7 @@ model Payment {
 }
 
 model Coupon {
-  id              String       @id @default(uuid()) @db.Uuid
+  id              String       @id @default(uuid()) @db.Char(36)
   code            String       @unique @db.VarChar(50)
   discountType    DiscountType @map("discount_type")
   value           Decimal      @db.Decimal(15, 2)
@@ -327,10 +327,10 @@ model Coupon {
   usageLimit      Int?         @map("usage_limit")
   usedCount       Int          @default(0) @map("used_count")
   userLimit       Int          @default(1) @map("user_limit")
-  gameId          String?      @map("game_id") @db.Uuid
+  gameId          String?      @map("game_id") @db.Char(36)
   isActive        Boolean      @default(true) @map("is_active")
-  expiresAt       DateTime?    @map("expires_at") @db.Timestamptz()
-  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz()
+  expiresAt       DateTime?    @map("expires_at") @db.DateTime(3)
+  createdAt       DateTime     @default(now()) @map("created_at") @db.DateTime(3)
 
   game         Game?         @relation(fields: [gameId], references: [id])
   orders       Order[]
@@ -340,12 +340,12 @@ model Coupon {
 }
 
 model CouponUsage {
-  id             String   @id @default(uuid()) @db.Uuid
-  couponId       String   @map("coupon_id") @db.Uuid
-  userId         String   @map("user_id") @db.Uuid
-  orderId        String   @unique @map("order_id") @db.Uuid
+  id             String   @id @default(uuid()) @db.Char(36)
+  couponId       String   @map("coupon_id") @db.Char(36)
+  userId         String   @map("user_id") @db.Char(36)
+  orderId        String   @unique @map("order_id") @db.Char(36)
   discountAmount Decimal  @map("discount_amount") @db.Decimal(15, 2)
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  createdAt      DateTime @default(now()) @map("created_at") @db.DateTime(3)
 
   coupon Coupon @relation(fields: [couponId], references: [id])
   user   User   @relation(fields: [userId], references: [id])
@@ -355,15 +355,15 @@ model CouponUsage {
 }
 
 model CashbackRule {
-  id             String       @id @default(uuid()) @db.Uuid
+  id             String       @id @default(uuid()) @db.Char(36)
   name           String       @db.VarChar(100)
   cashbackType   CashbackType @map("cashback_type")
   value          Decimal      @db.Decimal(15, 2)
   minOrderAmount Decimal      @default(0) @map("min_order_amount") @db.Decimal(15, 2)
-  gameId         String?      @map("game_id") @db.Uuid
+  gameId         String?      @map("game_id") @db.Char(36)
   isActive       Boolean      @default(true) @map("is_active")
-  expiresAt      DateTime?    @map("expires_at") @db.Timestamptz()
-  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz()
+  expiresAt      DateTime?    @map("expires_at") @db.DateTime(3)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.DateTime(3)
 
   game Game? @relation(fields: [gameId], references: [id])
 
@@ -371,15 +371,15 @@ model CashbackRule {
 }
 
 model Affiliate {
-  id              String          @id @default(uuid()) @db.Uuid
-  userId          String          @unique @map("user_id") @db.Uuid
+  id              String          @id @default(uuid()) @db.Char(36)
+  userId          String          @unique @map("user_id") @db.Char(36)
   referralCode    String          @unique @map("referral_code") @db.VarChar(20)
   commissionRate  Decimal         @default(2.00) @map("commission_rate") @db.Decimal(5, 2)
   totalReferrals  Int             @default(0) @map("total_referrals")
   totalEarnings   Decimal         @default(0) @map("total_earnings") @db.Decimal(15, 2)
   pendingEarnings Decimal         @default(0) @map("pending_earnings") @db.Decimal(15, 2)
   status          AffiliateStatus @default(ACTIVE)
-  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz()
+  createdAt       DateTime        @default(now()) @map("created_at") @db.DateTime(3)
 
   user        User                  @relation(fields: [userId], references: [id])
   commissions AffiliateCommission[]
@@ -388,14 +388,14 @@ model Affiliate {
 }
 
 model AffiliateCommission {
-  id               String           @id @default(uuid()) @db.Uuid
-  affiliateId      String           @map("affiliate_id") @db.Uuid
-  referredUserId   String           @map("referred_user_id") @db.Uuid
-  orderId          String           @map("order_id") @db.Uuid
+  id               String           @id @default(uuid()) @db.Char(36)
+  affiliateId      String           @map("affiliate_id") @db.Char(36)
+  referredUserId   String           @map("referred_user_id") @db.Char(36)
+  orderId          String           @map("order_id") @db.Char(36)
   commissionAmount Decimal          @map("commission_amount") @db.Decimal(15, 2)
   status           CommissionStatus @default(PENDING)
-  paidAt           DateTime?        @map("paid_at") @db.Timestamptz()
-  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz()
+  paidAt           DateTime?        @map("paid_at") @db.DateTime(3)
+  createdAt        DateTime         @default(now()) @map("created_at") @db.DateTime(3)
 
   affiliate    Affiliate @relation(fields: [affiliateId], references: [id])
   referredUser User      @relation("ReferredUserCommissions", fields: [referredUserId], references: [id])
@@ -405,16 +405,16 @@ model AffiliateCommission {
 }
 
 model Notification {
-  id        String              @id @default(uuid()) @db.Uuid
-  userId    String              @map("user_id") @db.Uuid
+  id        String              @id @default(uuid()) @db.Char(36)
+  userId    String              @map("user_id") @db.Char(36)
   type      String              @db.VarChar(100)
   title     String              @db.VarChar(200)
   body      String
   channel   NotificationChannel
   isRead    Boolean             @default(false) @map("is_read")
   metadata  Json?               @default("{}")
-  sentAt    DateTime?           @map("sent_at") @db.Timestamptz()
-  createdAt DateTime            @default(now()) @map("created_at") @db.Timestamptz()
+  sentAt    DateTime?           @map("sent_at") @db.DateTime(3)
+  createdAt DateTime            @default(now()) @map("created_at") @db.DateTime(3)
 
   user User @relation(fields: [userId], references: [id])
 
@@ -423,16 +423,16 @@ model Notification {
 }
 
 model AuditLog {
-  id         String   @id @default(uuid()) @db.Uuid
-  userId     String?  @map("user_id") @db.Uuid
+  id         String   @id @default(uuid()) @db.Char(36)
+  userId     String?  @map("user_id") @db.Char(36)
   action     String   @db.VarChar(100)
   entityType String?  @map("entity_type") @db.VarChar(50)
-  entityId   String?  @map("entity_id") @db.Uuid
+  entityId   String?  @map("entity_id") @db.Char(36)
   oldValues  Json?    @map("old_values")
   newValues  Json?    @map("new_values")
   ipAddress  String?  @map("ip_address")
   userAgent  String?  @map("user_agent")
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(3)
 
   user User? @relation(fields: [userId], references: [id])
 
@@ -443,16 +443,16 @@ model AuditLog {
 }
 
 model Reseller {
-  id          String         @id @default(uuid()) @db.Uuid
-  userId      String         @unique @map("user_id") @db.Uuid
+  id          String         @id @default(uuid()) @db.Char(36)
+  userId      String         @unique @map("user_id") @db.Char(36)
   companyName String         @map("company_name") @db.VarChar(200)
   discountRate Decimal       @default(5.00) @map("discount_rate") @db.Decimal(5, 2)
   creditLimit Decimal        @default(0) @map("credit_limit") @db.Decimal(15, 2)
   creditUsed  Decimal        @default(0) @map("credit_used") @db.Decimal(15, 2)
   status      ResellerStatus @default(PENDING)
-  approvedById String?       @map("approved_by") @db.Uuid
-  approvedAt  DateTime?      @map("approved_at") @db.Timestamptz()
-  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz()
+  approvedById String?       @map("approved_by") @db.Char(36)
+  approvedAt  DateTime?      @map("approved_at") @db.DateTime(3)
+  createdAt   DateTime       @default(now()) @map("created_at") @db.DateTime(3)
 
   user       User  @relation("ResellerUser", fields: [userId], references: [id])
   approvedBy User? @relation("ResellerApprover", fields: [approvedById], references: [id])

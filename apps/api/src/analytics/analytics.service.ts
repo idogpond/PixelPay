@@ -7,26 +7,29 @@ export class AnalyticsService {
   constructor(private prisma: PrismaService) {}
 
   async getRevenueTrend(period: 'day' | 'week' | 'month') {
-    const truncUnit = period === 'day' ? 'hour' : 'day';
+    const truncExpr =
+      period === 'day'
+        ? Prisma.raw("DATE_FORMAT(created_at, '%Y-%m-%d %H:00:00')")
+        : Prisma.raw('DATE(created_at)');
     const since = this.sinceDate(period);
 
     const rows = await this.prisma.$queryRaw<
       Array<{ date: Date; revenue: number; count: bigint }>
     >`
       SELECT
-        DATE_TRUNC(${Prisma.raw(`'${truncUnit}'`)}, created_at) AS date,
-        SUM(total_price)::float AS revenue,
-        COUNT(*)::bigint AS count
+        ${truncExpr} AS date,
+        SUM(total_price) AS revenue,
+        COUNT(*) AS count
       FROM orders
       WHERE status = 'COMPLETED'
         AND created_at >= ${since}
-      GROUP BY DATE_TRUNC(${Prisma.raw(`'${truncUnit}'`)}, created_at)
+      GROUP BY ${truncExpr}
       ORDER BY date ASC
     `;
 
     return rows.map((r) => ({
       date: r.date,
-      revenue: r.revenue ?? 0,
+      revenue: Number(r.revenue ?? 0),
       count: Number(r.count),
     }));
   }
@@ -37,7 +40,7 @@ export class AnalyticsService {
     const rows = await this.prisma.$queryRaw<
       Array<{ status: string; count: bigint }>
     >`
-      SELECT status, COUNT(*)::bigint AS count
+      SELECT status, COUNT(*) AS count
       FROM orders
       WHERE created_at >= ${since}
       GROUP BY status
@@ -54,10 +57,10 @@ export class AnalyticsService {
     const rows = await this.prisma.$queryRaw<
       Array<{ date: Date; count: bigint }>
     >`
-      SELECT DATE_TRUNC('day', created_at) AS date, COUNT(*)::bigint AS count
+      SELECT DATE(created_at) AS date, COUNT(*) AS count
       FROM users
-      WHERE created_at >= NOW() - INTERVAL '30 days'
-      GROUP BY DATE_TRUNC('day', created_at)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      GROUP BY DATE(created_at)
       ORDER BY date ASC
     `;
 

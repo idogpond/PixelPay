@@ -2,20 +2,20 @@
 set -e
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BACKUP_FILE="pixelpay_${TIMESTAMP}.dump"
+BACKUP_FILE="pixelpay_${TIMESTAMP}.sql"
 S3_PATH="s3://${S3_BUCKET}/db-backups/${BACKUP_FILE}"
 
 trap 'rm -f "/tmp/${BACKUP_FILE}"' EXIT
 
 echo "Starting backup: ${BACKUP_FILE}"
 
-# Requires PGPASSWORD env var to be set (provided by docker-compose via environment)
-pg_dump \
+# Requires MYSQL_PWD env var to be set (provided by docker-compose via environment)
+mysqldump \
   --host="${DB_HOST}" \
-  --port="${DB_PORT:-5432}" \
-  --username="${DB_USER}" \
-  --format=custom \
-  --no-password \
+  --port="${DB_PORT:-3306}" \
+  --user="${DB_USER}" \
+  --single-transaction \
+  --routines \
   "${DB_NAME}" > "/tmp/${BACKUP_FILE}"
 
 aws s3 cp "/tmp/${BACKUP_FILE}" "${S3_PATH}" \

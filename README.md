@@ -1,6 +1,6 @@
 # PixelPay
 
-Game top-up payment platform built with NestJS, Next.js 14, and PostgreSQL.
+Game top-up payment platform built with NestJS, Next.js 14, and MySQL.
 
 ## Stack
 
@@ -8,7 +8,7 @@ Game top-up payment platform built with NestJS, Next.js 14, and PostgreSQL.
 |-------|-----------|
 | API | NestJS 10, Fastify, Prisma 5, BullMQ |
 | Frontend | Next.js 14 (App Router), Tailwind CSS, Zustand |
-| Database | PostgreSQL 16 |
+| Database | MySQL 8 |
 | Cache / Queue | Redis 7 |
 | Reverse Proxy | Nginx (production) |
 
@@ -53,7 +53,7 @@ docker compose up --build
 ```
 
 This starts:
-- **PostgreSQL** on port `5432`
+- **MySQL** on port `3306`
 - **Redis** on port `6379`
 - **API** on `http://localhost:3000`
 - **Frontend** on `http://localhost:3001`
@@ -79,7 +79,7 @@ docker compose exec api npx prisma migrate deploy
 ### 1. Start infrastructure only
 
 ```bash
-docker compose up postgres redis -d
+docker compose up mysql redis -d
 ```
 
 ### 2. Install dependencies
@@ -100,7 +100,7 @@ cp .env.example .env
 `.env` defaults for local infrastructure:
 
 ```env
-DATABASE_URL=postgresql://pixelpay:pixelpay@localhost:5432/pixelpay
+DATABASE_URL=mysql://pixelpay:pixelpay@localhost:3306/pixelpay
 REDIS_URL=redis://:pixelpay@localhost:6379
 ```
 
@@ -222,15 +222,14 @@ Base URL: `http://localhost:3000/api/v1`
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
+| `DATABASE_URL` | MySQL connection string | Yes |
 | `REDIS_URL` | Redis connection string | Yes |
 | `JWT_SECRET` | JWT signing secret (64+ chars) | Yes |
 | `JWT_REFRESH_SECRET` | Refresh token secret (64+ chars) | Yes |
 | `ENCRYPTION_KEY` | AES-256 key for provider credentials (32 hex chars) | Yes |
-| `PAYMENT_GATEWAY_URL` | Payment gateway base URL | Yes |
-| `PAYMENT_GATEWAY_API_KEY` | Payment gateway API key | Yes |
-| `PAYMENT_GATEWAY_SECRET` | Payment gateway secret | Yes |
-| `PAYMENT_WEBHOOK_SECRET` | Webhook signature secret | Yes |
+| `PAYMENT_GATEWAY_URL` | GB Prime Pay API base URL — confirm with your account rep | Yes |
+| `PAYMENT_GATEWAY_API_KEY` | GB Prime Pay "token" (Profile > Gen Token); requires QR Cash enabled on the account | Yes |
+| `PAYMENT_GATEWAY_SECRET` | GB Prime Pay merchant secret key, for the status-query API | Yes |
 | `SMTP_HOST` | SMTP server for email notifications | Optional |
 | `TWILIO_ACCOUNT_SID` | Twilio SID for SMS | Optional |
 | `NEXT_PUBLIC_API_URL` | API URL for the frontend | Yes |
@@ -260,7 +259,7 @@ Requires:
 ### CI/CD (GitHub Actions)
 
 Push to `main` triggers:
-1. CI — runs tests against Postgres 16 + Redis 7
+1. CI — runs tests against MySQL 8 + Redis 7
 2. CD — builds Docker images, pushes to GHCR, deploys to VPS via SSH
 
 Required GitHub secrets: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `GHCR_TOKEN`
@@ -294,7 +293,7 @@ S3_BUCKET=pixelpay
 S3_ENDPOINT=https://s3.amazonaws.com
 S3_ACCESS_KEY=...
 S3_SECRET_KEY=...
-PGPASSWORD=...
-POSTGRES_DB=pixelpay
-POSTGRES_USER=pixelpay
+MYSQL_PWD=...
+DB_NAME=pixelpay
+DB_USER=pixelpay
 ```

@@ -21,7 +21,7 @@ services:
     deploy:
       replicas: 2
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -47,7 +47,7 @@ services:
     deploy:
       replicas: 2
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -59,24 +59,25 @@ services:
       dockerfile: infrastructure/docker/Dockerfile.worker
     env_file: .env
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
     restart: unless-stopped
 
-  postgres:
-    image: postgres:16-alpine
+  mysql:
+    image: mysql:8.0
     env_file: .env
     environment:
-      POSTGRES_USER: "${DB_USER}"
-      POSTGRES_PASSWORD: "${DB_PASSWORD}"
-      POSTGRES_DB: "${DB_NAME}"
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_USER: "${DB_USER}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_DATABASE: "${DB_NAME}"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USER}", "-p${DB_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -94,18 +95,18 @@ services:
       retries: 5
 
   db-backup:
-    image: postgres:16-alpine
+    image: mysql:8.0
     environment:
-      PGPASSWORD: "${DB_PASSWORD}"
+      MYSQL_PWD: "${DB_PASSWORD}"
     volumes:
       - ./infrastructure/scripts/db-backup.sh:/backup.sh:ro
     entrypoint: ["crond", "-f", "-d", "8"]
     restart: unless-stopped
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
 
 volumes:
-  postgres_data:
+  mysql_data:
   redis_data:
   nginx_logs:
