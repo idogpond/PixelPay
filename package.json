@@ -2,6 +2,7 @@
   "name": "pixelpay",
   "private": true,
   "workspaces": ["apps/*", "packages/*"],
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
