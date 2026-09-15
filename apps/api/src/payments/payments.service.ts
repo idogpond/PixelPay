@@ -37,7 +37,7 @@ export class PaymentsService {
     });
 
     try {
-      const qrResult = await this.gateway.createPromptPayQr(dto.amount, payment.id);
+      const qrResult = await this.gateway.createPromptPayQr(dto.amount);
 
       const updated = await this.prisma.payment.update({
         where: { id: payment.id },
@@ -78,15 +78,14 @@ export class PaymentsService {
     return payment;
   }
 
-  async handleWebhook(rawBody: string, signature: string) {
-    const valid = this.gateway.verifyWebhookSignature(rawBody, signature);
-    if (!valid) throw new BadRequestException('Invalid webhook signature');
-
-    const payload = JSON.parse(rawBody) as {
-      referenceNo: string;
-      status: string;
-      paidAt?: string;
-    };
+  async handleWebhook(rawBody: string) {
+    let payload: { referenceNo?: string };
+    try {
+      payload = JSON.parse(rawBody);
+    } catch {
+      throw new BadRequestException('Invalid webhook payload');
+    }
+    if (!payload.referenceNo) throw new BadRequestException('Missing referenceNo');
 
     const payment = await this.prisma.payment.findFirst({
       where: { gatewayReference: payload.referenceNo },
@@ -95,40 +94,41 @@ export class PaymentsService {
     // Idempotency: skip if not pending
     if (!payment || payment.status !== PaymentStatus.PENDING) return { received: true };
 
-    if (payload.status === 'paid' || payload.status === 'pay') {
-      await this.prisma.$transaction(async (tx) => {
-        // 1. Update payment status with atomic idempotency guard
-        const updated = await tx.payment.updateMany({
-          where: { id: payment.id, status: PaymentStatus.PENDING },
-          data: {
-            status: PaymentStatus.COMPLETED,
-            paidAt: payload.paidAt ? new Date(payload.paidAt) : new Date(),
-          },
-        });
+    // GB Prime Pay's QR Cash webhook carries no signature or auth of any kind, so the
+    // inbound body is never trusted for the pay/no-pay decision — it only tells us which
+    // charge to re-check. The actual status always comes from our own authenticated call
+    // back to their status-query API (same call the poller makes).
+    const chargeStatus = await this.gateway.getChargeStatus(payload.referenceNo);
+    if (chargeStatus.status !== 'paid') return { received: true };
 
-        // If another concurrent request already processed it, bail out
-        if (updated.count === 0) return;
-
-        // 2. Look up wallet by userId inside tx
-        const walletRecord = await tx.wallet.findUniqueOrThrow({
-          where: { userId: payment.userId },
-        });
-
-        // 3. Credit wallet using actual signature (tx, walletId, amount, type, description, referenceId, referenceType)
-        await this.wallet.credit(
-          tx,
-          walletRecord.id,
-          payment.amount, // Decimal — don't call Number() on it
-          WalletTransactionType.DEPOSIT,
-          'PromptPay deposit',
-          payment.id,
-          'PAYMENT',
-        );
+    await this.prisma.$transaction(async (tx) => {
+      // 1. Update payment status with atomic idempotency guard
+      const updated = await tx.payment.updateMany({
+        where: { id: payment.id, status: PaymentStatus.PENDING },
+        data: { status: PaymentStatus.COMPLETED, paidAt: new Date() },
       });
 
-      this.logger.log(`Wallet credited ${payment.amount} for user ${payment.userId}`);
-    }
+      // If another concurrent request already processed it, bail out
+      if (updated.count === 0) return;
 
+      // 2. Look up wallet by userId inside tx
+      const walletRecord = await tx.wallet.findUniqueOrThrow({
+        where: { userId: payment.userId },
+      });
+
+      // 3. Credit wallet using actual signature (tx, walletId, amount, type, description, referenceId, referenceType)
+      await this.wallet.credit(
+        tx,
+        walletRecord.id,
+        payment.amount, // Decimal — don't call Number() on it
+        WalletTransactionType.DEPOSIT,
+        'PromptPay deposit',
+        payment.id,
+        'PAYMENT',
+      );
+    });
+
+    this.logger.log(`Wallet credited ${payment.amount} for user ${payment.userId}`);
     return { received: true };
   }
 }

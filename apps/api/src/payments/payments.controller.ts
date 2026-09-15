@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Param, Post, RawBody, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, RawBody, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { PaymentsService } from './payments.service';
@@ -23,12 +23,10 @@ export class PaymentsController {
     return this.payments.getPayment(id, user.id);
   }
 
-  // Webhook — no JWT auth, verified by HMAC
+  // Webhook — GB Prime Pay's QR Cash callback carries no signature; the service re-checks
+  // status with GB Prime Pay directly rather than trusting this body (see payments.service.ts).
   @Post('webhook')
-  handleWebhook(
-    @RawBody() rawBody: Buffer,
-    @Headers('x-gbpay-signature') signature: string,
-  ) {
-    return this.payments.handleWebhook(rawBody.toString('utf8'), signature);
+  handleWebhook(@RawBody() rawBody: Buffer) {
+    return this.payments.handleWebhook(rawBody.toString('utf8'));
   }
 }

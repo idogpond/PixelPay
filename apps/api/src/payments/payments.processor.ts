@@ -1,4 +1,4 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { PaymentStatus, WalletTransactionType } from '@prisma/client';
@@ -24,6 +24,14 @@ export class PaymentsProcessor extends WorkerHost {
     const payment = await this.prisma.payment.findUnique({ where: { id: paymentId } });
     if (!payment || payment.status !== PaymentStatus.PENDING) return;
 
+    if (payment.expiresAt && payment.expiresAt < new Date()) {
+      await this.prisma.payment.updateMany({
+        where: { id: paymentId, status: PaymentStatus.PENDING },
+        data: { status: PaymentStatus.EXPIRED },
+      });
+      return; // stop polling — do not rethrow
+    }
+
     const chargeStatus = await this.gateway.getChargeStatus(chargeId);
 
     if (chargeStatus.status === 'paid') {
@@ -33,7 +41,7 @@ export class PaymentsProcessor extends WorkerHost {
           where: { id: paymentId, status: PaymentStatus.PENDING },
           data: {
             status: PaymentStatus.COMPLETED,
-            paidAt: chargeStatus.paidAt ?? new Date(),
+            paidAt: new Date(),
           },
         });
 
@@ -58,15 +66,24 @@ export class PaymentsProcessor extends WorkerHost {
       });
 
       this.logger.log(`Payment ${paymentId} completed via polling`);
-    } else if (chargeStatus.status === 'expired' || chargeStatus.status === 'failed') {
-      await this.prisma.payment.update({
-        where: { id: paymentId },
-        data: { status: PaymentStatus.EXPIRED },
-      });
-      // Stop polling by not rethrowing — BullMQ completes the job
     } else {
-      // Still pending — rethrow to trigger next attempt
+      // Still pending — rethrow to trigger next attempt. If attempts run out before the
+      // payment's own expiresAt, the next scheduled attempt (or the webhook) catches it;
+      // the expiresAt check above is what ultimately marks a truly abandoned QR as EXPIRED.
       throw new Error(`Payment ${paymentId} still pending`);
     }
+  }
+
+  // GB Prime Pay never reports a QR as "expired" or "failed" — once the last poll attempt
+  // is exhausted with the payment still pending, this is the only remaining place that
+  // closes it out so it doesn't stay PENDING forever.
+  @OnWorkerEvent('failed')
+  async onFailed(job: Job<{ paymentId: string; chargeId: string }>) {
+    if ((job.attemptsMade ?? 0) < (job.opts.attempts ?? 0)) return; // more retries left
+
+    await this.prisma.payment.updateMany({
+      where: { id: job.data.paymentId, status: PaymentStatus.PENDING },
+      data: { status: PaymentStatus.EXPIRED },
+    });
   }
 }
