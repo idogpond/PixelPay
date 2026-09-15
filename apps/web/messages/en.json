@@ -215,6 +215,7 @@
       "dashboard": "Dashboard",
       "games": "Games",
       "categories": "Categories",
+      "providers": "Providers",
       "orders": "Orders",
       "users": "Users",
       "backToStore": "← Store"
@@ -270,6 +271,35 @@
         "slugHint": "(lowercase-hyphens)",
         "slugPattern": "Lowercase, numbers and hyphens only",
         "sortOrder": "Sort order",
+        "active": "Active"
+      }
+    },
+    "providers": {
+      "title": "Providers",
+      "newProvider": "+ New provider",
+      "credentialHint": "API keys and secrets are encrypted before storage and never shown again — leave those fields blank when editing to keep the existing credential.",
+      "name": "Name",
+      "slug": "Slug",
+      "priority": "Priority",
+      "rateLimit": "Rate limit",
+      "status": "Status",
+      "noProviders": "No providers yet. Click \"+ New provider\" to connect one.",
+      "newProviderTitle": "New Provider",
+      "editTitle": "Edit — {name}",
+      "form": {
+        "name": "Name *",
+        "slug": "Supplier *",
+        "apiUrl": "API base URL *",
+        "apiUrlHint": "from your supplier's API docs",
+        "apiUrlInvalid": "Enter a valid URL",
+        "apiKey": "API key *",
+        "apiKeyRequired": "API key is required",
+        "apiSecret": "API secret",
+        "keepExisting": "•••••••• (leave blank to keep current)",
+        "optional": "(optional)",
+        "priority": "Priority",
+        "rateLimit": "Rate limit / min",
+        "healthCheckUrl": "Health check URL",
         "active": "Active"
       }
     },

@@ -17,6 +17,8 @@ import { UpdateProductDto } from '../games/dto/update-product.dto';
 import { CategoriesService } from '../categories/categories.service';
 import { CreateCategoryDto } from '../categories/dto/create-category.dto';
 import { UpdateCategoryDto } from '../categories/dto/update-category.dto';
+import { CreateProviderDto } from './dto/create-provider.dto';
+import { UpdateProviderDto } from './dto/update-provider.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
@@ -76,12 +78,12 @@ export class AdminController {
   }
 
   @Post('providers')
-  createProvider(@Body() dto: any) {
+  createProvider(@Body() dto: CreateProviderDto) {
     return this.admin.createProvider(dto);
   }
 
   @Patch('providers/:id')
-  updateProvider(@Param('id') id: string, @Body() dto: any) {
+  updateProvider(@Param('id') id: string, @Body() dto: UpdateProviderDto) {
     return this.admin.updateProvider(id, dto);
   }
 

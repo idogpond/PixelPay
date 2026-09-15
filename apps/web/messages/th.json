@@ -215,6 +215,7 @@
       "dashboard": "แดชบอร์ด",
       "games": "เกม",
       "categories": "หมวดหมู่",
+      "providers": "ผู้ให้บริการ",
       "orders": "คำสั่งซื้อ",
       "users": "ผู้ใช้",
       "backToStore": "← หน้าร้าน"
@@ -270,6 +271,35 @@
         "slugHint": "(ตัวพิมพ์เล็ก-ขีดกลาง)",
         "slugPattern": "ตัวพิมพ์เล็ก ตัวเลข และขีดกลางเท่านั้น",
         "sortOrder": "ลำดับ",
+        "active": "ใช้งาน"
+      }
+    },
+    "providers": {
+      "title": "ผู้ให้บริการ",
+      "newProvider": "+ เพิ่มผู้ให้บริการ",
+      "credentialHint": "API key และ secret จะถูกเข้ารหัสก่อนบันทึกและจะไม่แสดงอีก — เว้นช่องนี้ว่างไว้ตอนแก้ไขเพื่อคงข้อมูลเดิม",
+      "name": "ชื่อ",
+      "slug": "Slug",
+      "priority": "ลำดับความสำคัญ",
+      "rateLimit": "อัตราจำกัด",
+      "status": "สถานะ",
+      "noProviders": "ยังไม่มีผู้ให้บริการ กด \"+ เพิ่มผู้ให้บริการ\" เพื่อเชื่อมต่อ",
+      "newProviderTitle": "เพิ่มผู้ให้บริการ",
+      "editTitle": "แก้ไข — {name}",
+      "form": {
+        "name": "ชื่อ *",
+        "slug": "ซัพพลายเออร์ *",
+        "apiUrl": "URL หลักของ API *",
+        "apiUrlHint": "จากเอกสาร API ของซัพพลายเออร์",
+        "apiUrlInvalid": "กรุณากรอก URL ที่ถูกต้อง",
+        "apiKey": "API key *",
+        "apiKeyRequired": "กรุณากรอก API key",
+        "apiSecret": "API secret",
+        "keepExisting": "•••••••• (เว้นว่างเพื่อคงค่าเดิม)",
+        "optional": "(ไม่บังคับ)",
+        "priority": "ลำดับความสำคัญ",
+        "rateLimit": "อัตราจำกัด / นาที",
+        "healthCheckUrl": "Health check URL",
         "active": "ใช้งาน"
       }
     },

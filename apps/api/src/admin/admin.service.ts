@@ -1,8 +1,26 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { OrderStatus, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { encryptAes256 } from '../common/utils/crypto';
+import { CreateProviderDto } from './dto/create-provider.dto';
+import { UpdateProviderDto } from './dto/update-provider.dto';
+
+const PROVIDER_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  apiUrl: true,
+  priority: true,
+  isActive: true,
+  rateLimitPerMin: true,
+  healthCheckUrl: true,
+  createdAt: true,
+  updatedAt: true,
+  // apiKeyEnc / apiSecretEnc deliberately excluded — never sent to any client
+};
 
 const USER_SELECT = {
   id: true,
@@ -19,10 +37,15 @@ const USER_SELECT = {
 
 @Injectable()
 export class AdminService {
+  private readonly encKey: string;
+
   constructor(
     private prisma: PrismaService,
+    private config: ConfigService,
     @InjectQueue('topup') private topupQueue: Queue,
-  ) {}
+  ) {
+    this.encKey = config.get<string>('app.encryptionKey') ?? '';
+  }
 
   async getDashboardStats() {
     const now = new Date();
@@ -56,8 +79,8 @@ export class AdminService {
     const where = search
       ? {
           OR: [
-            { email: { contains: search, mode: 'insensitive' as const } },
-            { displayName: { contains: search, mode: 'insensitive' as const } },
+            { email: { contains: search } },
+            { displayName: { contains: search } },
           ],
         }
       : {};
@@ -140,23 +163,33 @@ export class AdminService {
   }
 
   listProviders() {
-    return this.prisma.provider.findMany({ orderBy: { priority: 'asc' } });
+    return this.prisma.provider.findMany({ orderBy: { priority: 'asc' }, select: PROVIDER_SELECT });
   }
 
-  createProvider(dto: {
-    name: string;
-    slug: string;
-    apiUrl: string;
-    apiKeyEnc: string;
-    priority: number;
-  }) {
-    return this.prisma.provider.create({ data: dto });
+  createProvider(dto: CreateProviderDto) {
+    const { apiKey, apiSecret, healthCheckUrl, ...rest } = dto;
+    return this.prisma.provider.create({
+      data: {
+        ...rest,
+        healthCheckUrl: healthCheckUrl || null,
+        apiKeyEnc: encryptAes256(this.encKey, apiKey),
+        apiSecretEnc: apiSecret ? encryptAes256(this.encKey, apiSecret) : null,
+      },
+      select: PROVIDER_SELECT,
+    });
   }
 
-  updateProvider(
-    id: string,
-    dto: Partial<{ isActive: boolean; priority: number; rateLimitPerMin: number }>,
-  ) {
-    return this.prisma.provider.update({ where: { id }, data: dto });
+  updateProvider(id: string, dto: UpdateProviderDto) {
+    const { apiKey, apiSecret, healthCheckUrl, ...rest } = dto;
+    return this.prisma.provider.update({
+      where: { id },
+      data: {
+        ...rest,
+        ...(healthCheckUrl !== undefined ? { healthCheckUrl: healthCheckUrl || null } : {}),
+        ...(apiKey ? { apiKeyEnc: encryptAes256(this.encKey, apiKey) } : {}),
+        ...(apiSecret ? { apiSecretEnc: encryptAes256(this.encKey, apiSecret) } : {}),
+      },
+      select: PROVIDER_SELECT,
+    });
   }
 }
